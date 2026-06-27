@@ -68,8 +68,11 @@ $recentKeg     = db_query("SELECT k.*, (SELECT COUNT(*) FROM spd WHERE id_kegiat
             <a href="?page=kegiatan" class="btn btn-sm btn-secondary">Lihat Semua</a>
         </div>
         <?php if (empty($recentKeg)): ?>
-            <div class="empty-state">
-                <p>Belum ada kegiatan</p>
+            <div class="empty-state" style="padding: 4rem 1rem; text-align: center;">
+                <div style="font-size: 3.5rem; color: var(--border); margin-bottom: 1rem;">📁</div>
+                <h3 style="color: var(--text-primary); margin-bottom: 0.5rem; font-size: 1.1rem;">Belum Ada Kegiatan</h3>
+                <p style="color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.95rem;">Anda belum menambahkan kegiatan atau pelatihan apa pun.</p>
+                <a href="?page=kegiatan" class="btn btn-primary">+ Buat Kegiatan Pertama</a>
             </div>
         <?php else: ?>
             <div class="table-wrapper">
@@ -95,8 +98,10 @@ $recentKeg     = db_query("SELECT k.*, (SELECT COUNT(*) FROM spd WHERE id_kegiat
             <h2>SPD Terakhir Diperbarui</h2>
         </div>
         <?php if (empty($recentSpd)): ?>
-            <div class="empty-state">
-                <p>Belum ada SPD</p>
+            <div class="empty-state" style="padding: 4rem 1rem; text-align: center;">
+                <div style="font-size: 3.5rem; color: var(--border); margin-bottom: 1rem;">📄</div>
+                <h3 style="color: var(--text-primary); margin-bottom: 0.5rem; font-size: 1.1rem;">Belum Ada SPD</h3>
+                <p style="color: var(--text-muted); font-size: 0.95rem;">Surat Perjalanan Dinas yang Anda buat akan muncul di sini.</p>
             </div>
         <?php else: ?>
             <div class="table-wrapper">
