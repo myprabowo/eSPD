@@ -121,7 +121,7 @@ switch ($action) {
             json_response(['success' => false, 'message' => 'Tidak ada field yang diubah.']);
         }
 
-        $setClauses[] = "updated_at = datetime('now')";
+        $setClauses[] = "updated_at = CURRENT_TIMESTAMP";
         $params[] = $id;
 
         $sql = "UPDATE spd SET " . implode(', ', $setClauses) . " WHERE id = ?";
@@ -153,7 +153,7 @@ switch ($action) {
 
         $userFilter = current_role() === 'Admin Super' ? "" : " AND created_by = '" . current_username() . "'";
         db_execute(
-            "UPDATE spd SET $field = ?, updated_at = datetime('now') WHERE id = ?$userFilter",
+            "UPDATE spd SET $field = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?$userFilter",
             [$value, $id]
         );
         
@@ -179,7 +179,7 @@ switch ($action) {
             json_response(['success' => false, 'message' => 'Parameter tidak valid.']);
         }
         if (!check_spd_access($id)) json_response(['success' => false, 'message' => 'Akses ditolak.']);
-        db_execute("UPDATE spd SET status = ?, updated_at = datetime('now') WHERE id = ?", [$status, $id]);
+        db_execute("UPDATE spd SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?", [$status, $id]);
         json_response(['success' => true, 'message' => "Status diubah ke: $status"]);
         break;
 

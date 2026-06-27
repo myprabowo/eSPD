@@ -59,7 +59,7 @@ switch ($action) {
         if (!$id || $nama === '') json_response(['success' => false, 'message' => 'Parameter kurang.']);
         $userFilter = current_role() === 'Admin Super' ? "" : " AND created_by = '" . current_username() . "'";
         db_execute(
-            "UPDATE kegiatan SET nama_kegiatan=?, nomor_st=?, tanggal_st=?, perihal_st=?, kota_tujuan=?, persekot=?, updated_at=datetime('now') WHERE id=? $userFilter",
+            "UPDATE kegiatan SET nama_kegiatan=?, nomor_st=?, tanggal_st=?, perihal_st=?, kota_tujuan=?, persekot=?, updated_at=CURRENT_TIMESTAMP WHERE id=? $userFilter",
             [
                 $nama,
                 trim($b['nomor_st']   ?? ''),

@@ -90,7 +90,7 @@ switch ($action) {
         }
         
         db_execute(
-            "UPDATE kegiatan_biaya_lain SET nama_biaya = ?, jumlah = ?, keterangan = ?, tanggal = ?, file_bukti = ?, updated_at = datetime('now') WHERE id = ?",
+            "UPDATE kegiatan_biaya_lain SET nama_biaya = ?, jumlah = ?, keterangan = ?, tanggal = ?, file_bukti = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
             [$nama_biaya, $jumlah, $keterangan, $tanggal, $namaFile, $id]
         );
         json_response(['success' => true, 'message' => 'Biaya lain berhasil diperbarui!']);
