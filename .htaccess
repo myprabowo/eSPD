@@ -1,0 +1,26 @@
+# eSPD — Apache Configuration
+
+# Deny direct access to sensitive directories
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Block access to data directory (SQLite DB)
+    RewriteRule ^data/ - [F,L]
+
+    # Block access to .env
+    RewriteRule ^\.env$ - [F,L]
+
+    # Block access to config directory
+    RewriteRule ^config/ - [F,L]
+</IfModule>
+
+# Additional protection for sensitive files
+<FilesMatch "\.(sqlite|db|sql|env)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# PHP settings
+php_value upload_max_filesize 20M
+php_value post_max_size 25M
+php_value max_execution_time 120

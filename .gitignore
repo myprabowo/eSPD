@@ -1,0 +1,42 @@
+# Environment Variables
+.env
+.env.local
+.env.*.local
+
+# File Uploads
+uploads/*
+!uploads/.gitkeep
+
+# Database Files
+data/*.sqlite
+data/*.db
+*.sqlite3
+*.db
+
+# Exported Excel Files
+*.xlsx
+*.xls
+*.csv
+
+# OS Generated Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Log Files
+*.log
+error_log
+
+# PHP Dependencies
+vendor/
+node_modules/
+
+# IDE / Editor
+.idea/
+.vscode/
+*.swp
+*.swo
