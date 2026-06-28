@@ -32,7 +32,7 @@ $kegiatan = $kegiatan[0];
     <div class="header-actions">
         <button class="btn btn-secondary" onclick="openModal('modal-add-pengajar')">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
-            Tambah dari Pengajar
+            Tambah dari DB Pengajar
         </button>
         <button class="btn btn-primary" onclick="openModal('modal-add-spd')">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -48,7 +48,7 @@ $kegiatan = $kegiatan[0];
         </a>
         <button class="btn btn-primary" onclick="kirimKegiatan()">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-            Kirim ke Keuangan
+            Posting
         </button>
     </div>
 </div>
@@ -59,12 +59,10 @@ $kegiatan = $kegiatan[0];
             <thead>
                 <tr>
                     <th style="width:35px">#</th>
-                    <th>Nama</th>
-                    <th>NIP</th>
+                    <th>Nama / NIP</th>
                     <th>Golongan</th>
                     <th>Kota Asal</th>
-                    <th>Tgl Mulai</th>
-                    <th>Tgl Akhir</th>
+                    <th>Tgl Mulai - Akhir</th>
                     <th>UH/Hari</th>
                     <th>UH Hari</th>
                     <th class="currency">Total UH</th>
@@ -303,12 +301,17 @@ async function loadSpdList() {
         return `
         <tr>
             <td>${i + 1}</td>
-            <td><a href="?page=spd_detail&id=${s.id}" style="color:var(--primary-700);font-weight:600;text-decoration:none;">${escapeHtml(s.nama)}</a></td>
-            <td class="editable" data-id="${s.id}" data-field="nip" data-type="text" data-value="${escapeHtml(s.nip || '')}">${escapeHtml(s.nip || '-')}</td>
+            <td>
+                <a href="?page=spd_detail&id=${s.id}" style="color:var(--primary-700);font-weight:600;text-decoration:none;display:block;">${escapeHtml(s.nama)}</a>
+                <span class="editable" data-id="${s.id}" data-field="nip" data-type="text" data-value="${escapeHtml(s.nip || '')}" style="font-size:0.85em; color:var(--text-muted);">${escapeHtml(s.nip || '-')}</span>
+            </td>
             <td class="editable" data-id="${s.id}" data-field="golongan" data-type="text" data-value="${escapeHtml(s.golongan || '')}">${escapeHtml(s.golongan || '-')}</td>
             <td class="editable" data-id="${s.id}" data-field="kota_asal" data-type="text" data-value="${escapeHtml(s.kota_asal || '')}">${escapeHtml(s.kota_asal || '-')}</td>
-            <td class="editable" data-id="${s.id}" data-field="tgl_mulai" data-type="date" data-value="${s.tgl_mulai || ''}">${escapeHtml(s.tgl_mulai || '-')}</td>
-            <td class="editable" data-id="${s.id}" data-field="tgl_akhir" data-type="date" data-value="${s.tgl_akhir || ''}">${escapeHtml(s.tgl_akhir || '-')}</td>
+            <td>
+                <span class="editable" data-id="${s.id}" data-field="tgl_mulai" data-type="date" data-value="${s.tgl_mulai || ''}">${escapeHtml(s.tgl_mulai || '-')}</span>
+                <span style="color:var(--border)">-</span>
+                <span class="editable" data-id="${s.id}" data-field="tgl_akhir" data-type="date" data-value="${s.tgl_akhir || ''}">${escapeHtml(s.tgl_akhir || '-')}</span>
+            </td>
             <td class="editable currency" data-id="${s.id}" data-field="uh_per_hari" data-type="number" data-value="${s.uh_per_hari || 0}">${formatNumber(s.uh_per_hari)}</td>
             <td class="editable" data-id="${s.id}" data-field="uh_jml_hari" data-type="number" data-value="${s.uh_jml_hari || 0}">${s.uh_jml_hari || '-'}</td>
             <td class="currency" data-computed="total_uang_harian">${formatRupiah(s.total_uang_harian)}</td>
