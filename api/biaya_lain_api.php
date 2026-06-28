@@ -47,6 +47,8 @@ switch ($action) {
             "INSERT INTO kegiatan_biaya_lain (id_kegiatan, nama_biaya, jumlah, keterangan, tanggal, file_bukti) VALUES (?, ?, ?, ?, ?, ?)",
             [$id_kegiatan, $nama_biaya, $jumlah, $keterangan, $tanggal, $namaFile]
         );
+        $new_id = db_last_id();
+        log_activity('CREATE', "Menambahkan biaya lain (ID Kegiatan: $id_kegiatan, ID Biaya: $new_id)");
         json_response(['success' => true, 'message' => 'Biaya lain berhasil ditambahkan!']);
         break;
 
@@ -93,6 +95,7 @@ switch ($action) {
             "UPDATE kegiatan_biaya_lain SET nama_biaya = ?, jumlah = ?, keterangan = ?, tanggal = ?, file_bukti = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
             [$nama_biaya, $jumlah, $keterangan, $tanggal, $namaFile, $id]
         );
+        log_activity('UPDATE', "Mengubah data biaya lain (ID: $id)");
         json_response(['success' => true, 'message' => 'Biaya lain berhasil diperbarui!']);
         break;
 
@@ -111,6 +114,7 @@ switch ($action) {
         }
         
         db_execute("DELETE FROM kegiatan_biaya_lain WHERE id = ?", [$id]);
+        log_activity('DELETE', "Menghapus biaya lain (ID: $id)");
         json_response(['success' => true, 'message' => 'Biaya lain berhasil dihapus!']);
         break;
         

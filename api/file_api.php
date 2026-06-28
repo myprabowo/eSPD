@@ -64,12 +64,14 @@ switch ($action) {
             "INSERT INTO spd_files (id_spd, kategori, nama_file, nama_asli, ukuran, mime_type) VALUES (?,?,?,?,?,?)",
             [$id_spd, $kategori, $namaFile, $file['name'], $file['size'], $mimeType]
         );
+        $new_id = db_last_id();
+        log_activity('UPLOAD', "Mengunggah file bukti SPD (ID SPD: $id_spd, ID File: $new_id)");
 
         json_response([
             'success' => true, 
             'message' => 'File berhasil diunggah!',
             'file' => [
-                'id'         => db_last_id(),
+                'id'         => $new_id,
                 'nama_file'  => $namaFile,
                 'nama_asli'  => $file['name'],
                 'kategori'   => $kategori,
@@ -100,6 +102,7 @@ switch ($action) {
         if (file_exists($filePath)) unlink($filePath);
 
         db_execute("DELETE FROM spd_files WHERE id = ?", [$id]);
+        log_activity('DELETE', "Menghapus file bukti SPD (ID File: $id)");
         json_response(['success' => true, 'message' => 'File berhasil dihapus!']);
         break;
 

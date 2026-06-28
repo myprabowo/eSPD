@@ -13,14 +13,17 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
     $result = check_login($_POST['username'] ?? '', $_POST['password'] ?? '');
     if ($result['status']) {
         do_login($result['username'], $result['role'], $result['display_name'] ?? '');
+        log_activity('LOGIN', 'User login berhasil');
         header('Location: index.php?page=dashboard');
         exit;
     } else {
+        log_activity('LOGIN_FAILED', 'Gagal login: ' . ($_POST['username'] ?? ''), $_POST['username'] ?? 'Unknown');
         $loginError = 'Username atau password salah.';
     }
 }
 
 if (isset($_GET['action']) && $_GET['action'] === 'logout') {
+    log_activity('LOGOUT', 'User logout');
     do_logout();
     header('Location: index.php');
     exit;

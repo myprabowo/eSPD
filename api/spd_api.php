@@ -91,7 +91,9 @@ switch ($action) {
                 current_username(),
             ]
         );
-        json_response(['success' => true, 'message' => 'SPD berhasil dibuat!', 'id' => db_last_id()]);
+        $new_id = db_last_id();
+        log_activity('CREATE', "Membuat SPD baru: $nama (ID: $new_id)");
+        json_response(['success' => true, 'message' => 'SPD berhasil dibuat!', 'id' => $new_id]);
         break;
 
     case 'update':
@@ -130,6 +132,8 @@ switch ($action) {
         // Return updated row with computed totals
         $row = db_query("SELECT * FROM spd WHERE id = ?", [$id]);
         $row = compute_spd_totals($row[0]);
+        
+        log_activity('UPDATE', "Mengubah data SPD (ID: $id)");
 
         json_response(['success' => true, 'message' => 'SPD berhasil diperbarui!', 'row' => $row]);
         break;
@@ -180,6 +184,7 @@ switch ($action) {
         }
         if (!check_spd_access($id)) json_response(['success' => false, 'message' => 'Akses ditolak.']);
         db_execute("UPDATE spd SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?", [$status, $id]);
+        log_activity('UPDATE', "Mengubah status SPD (ID: $id) menjadi $status");
         json_response(['success' => true, 'message' => "Status diubah ke: $status"]);
         break;
 
@@ -199,6 +204,9 @@ switch ($action) {
         
         db_execute("DELETE FROM spd_files WHERE id_spd = ?", [$id]);
         db_execute("DELETE FROM spd WHERE id = ?", [$id]);
+        
+        log_activity('DELETE', "Menghapus data SPD (ID: $id)");
+        
         json_response(['success' => true, 'message' => 'SPD berhasil dihapus!']);
         break;
 

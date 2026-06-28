@@ -50,7 +50,9 @@ switch ($action) {
                 current_username(),
             ]
         );
-        json_response(['success' => true, 'message' => 'Kegiatan berhasil dibuat!', 'id' => db_last_id()]);
+        $new_id = db_last_id();
+        log_activity('CREATE', "Membuat kegiatan baru: $nama (ID: $new_id)");
+        json_response(['success' => true, 'message' => 'Kegiatan berhasil disimpan!', 'id' => $new_id]);
         break;
 
     case 'update':
@@ -70,6 +72,7 @@ switch ($action) {
                 $id,
             ]
         );
+        log_activity('UPDATE', "Mengubah data kegiatan (ID: $id)");
         json_response(['success' => true, 'message' => 'Kegiatan berhasil diperbarui!']);
         break;
 
@@ -85,8 +88,11 @@ switch ($action) {
         if (($used[0]['cnt'] ?? 0) > 0) {
             json_response(['success' => false, 'message' => 'GAGAL: Masih ada SPD terdaftar di kegiatan ini.']);
         }
-        db_execute("DELETE FROM kegiatan WHERE id = ?", [$id]);
-        json_response(['success' => true, 'message' => 'Kegiatan berhasil dihapus!']);
+        db_execute("DELETE FROM kegiatan WHERE id=? $userFilter", [$id]);
+        if (db_affected_rows() > 0) {
+            log_activity('DELETE', "Menghapus kegiatan (ID: $id)");
+            json_response(['success' => true, 'message' => 'Kegiatan berhasil dihapus!']);
+        }
         break;
     case 'submit_all':
         $id = (int)($b['id'] ?? 0);
@@ -95,8 +101,10 @@ switch ($action) {
         $check = db_query("SELECT id FROM kegiatan WHERE id = ?$userFilter", [$id]);
         if (empty($check)) json_response(['success' => false, 'message' => 'Kegiatan tidak ditemukan atau akses ditolak.']);
         
-        db_execute("UPDATE spd SET status = 'submitted' WHERE id_kegiatan = ? AND status = 'draft'", [$id]);
-        json_response(['success' => true, 'message' => 'Semua SPD draf dalam kegiatan ini berhasil dikirim ke Keuangan.']);
+        db_execute("UPDATE spd SET status = 'submitted', updated_at = CURRENT_TIMESTAMP WHERE id_kegiatan = ? AND status = 'draft'", [$id]);
+        $count = db_affected_rows();
+        log_activity('UPDATE', "Submit seluruh SPD draft (ID Kegiatan: $id) sejumlah $count data");
+        json_response(['success' => true, 'message' => "Berhasil mengajukan $count SPD."]);
         break;
 
     default:

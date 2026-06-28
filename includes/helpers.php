@@ -56,6 +56,9 @@ function json_body(): array {
     return $body;
 }
 
+require_once __DIR__ . '/auth.php';
+require_once __DIR__ . '/audit_logger.php';
+
 function h(mixed $s): string {
     return htmlspecialchars((string) $s, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 }
