@@ -120,7 +120,14 @@ switch ($action) {
         if (empty($row) || empty($row[0]['file_bukti'])) die('File tidak ditemukan');
         $path = __DIR__ . '/../uploads/kegiatan_' . $row[0]['id_kegiatan'] . '/' . $row[0]['file_bukti'];
         if (!file_exists($path)) die('File tidak ada di server');
-        $mime = mime_content_type($path);
+        $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+        $mimes = [
+            'pdf' => 'application/pdf',
+            'png' => 'image/png',
+            'jpg' => 'image/jpeg',
+            'jpeg' => 'image/jpeg'
+        ];
+        $mime = $mimes[$ext] ?? 'application/octet-stream';
         header('Content-Type: ' . $mime);
         header('Content-Disposition: inline; filename="' . $row[0]['file_bukti'] . '"');
         header('Content-Length: ' . filesize($path));
