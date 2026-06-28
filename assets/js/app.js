@@ -87,6 +87,46 @@ function formatFileSize(bytes) {
     return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
 }
 
+const INDO_MONTHS = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+
+function formatIndoDate(dateStr) {
+    if (!dateStr) return '-';
+    let [y, m, d] = dateStr.split('-');
+    if (!y || !m || !d) return dateStr;
+    return `${parseInt(d, 10)} ${INDO_MONTHS[parseInt(m, 10) - 1]} ${y}`;
+}
+
+function formatIndoDateRange(startStr, endStr) {
+    if (!startStr && !endStr) return { start: '-', end: '-' };
+    if (!startStr) return { start: '-', end: formatIndoDate(endStr) };
+    if (!endStr) return { start: formatIndoDate(startStr), end: '-' };
+    
+    let [y1, m1, d1] = startStr.split('-');
+    let [y2, m2, d2] = endStr.split('-');
+    
+    if (!y1 || !y2) return { start: formatIndoDate(startStr), end: formatIndoDate(endStr) };
+    
+    d1 = parseInt(d1, 10);
+    d2 = parseInt(d2, 10);
+    
+    if (y1 === y2 && m1 === m2) {
+        return {
+            start: d1.toString(),
+            end: `${d2} ${INDO_MONTHS[parseInt(m2, 10) - 1]} ${y2}`
+        };
+    } else if (y1 === y2) {
+        return {
+            start: `${d1} ${INDO_MONTHS[parseInt(m1, 10) - 1]}`,
+            end: `${d2} ${INDO_MONTHS[parseInt(m2, 10) - 1]} ${y2}`
+        };
+    } else {
+        return {
+            start: `${d1} ${INDO_MONTHS[parseInt(m1, 10) - 1]} ${y1}`,
+            end: `${d2} ${INDO_MONTHS[parseInt(m2, 10) - 1]} ${y2}`
+        };
+    }
+}
+
 // ==================== Inline Edit ====================
 
 function initInlineEdit(tableEl) {
@@ -158,6 +198,10 @@ function startInlineEdit(td) {
         if (result && result.success) {
             td.classList.add('cell-saved');
             setTimeout(() => td.classList.remove('cell-saved'), 600);
+            
+            if (type === 'date' && typeof loadSpdList === 'function') {
+                loadSpdList();
+            }
             
             // Update computed totals in the row
             if (result.row) {

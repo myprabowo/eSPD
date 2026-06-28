@@ -298,6 +298,8 @@ async function loadSpdList() {
         sumLain += (s.total_covid || 0) + (s.total_biaya_bukti || 0);
         grandTotalSpd += s.grand_total || 0;
         
+        const dateDisplay = formatIndoDateRange(s.tgl_mulai, s.tgl_akhir);
+        
         return `
         <tr>
             <td>${i + 1}</td>
@@ -308,9 +310,9 @@ async function loadSpdList() {
             <td class="editable" data-id="${s.id}" data-field="golongan" data-type="text" data-value="${escapeHtml(s.golongan || '')}">${escapeHtml(s.golongan || '-')}</td>
             <td class="editable" data-id="${s.id}" data-field="kota_asal" data-type="text" data-value="${escapeHtml(s.kota_asal || '')}">${escapeHtml(s.kota_asal || '-')}</td>
             <td>
-                <span class="editable" data-id="${s.id}" data-field="tgl_mulai" data-type="date" data-value="${s.tgl_mulai || ''}">${escapeHtml(s.tgl_mulai || '-')}</span>
+                <span class="editable" data-id="${s.id}" data-field="tgl_mulai" data-type="date" data-value="${s.tgl_mulai || ''}">${escapeHtml(dateDisplay.start)}</span>
                 <span style="color:var(--border)">-</span>
-                <span class="editable" data-id="${s.id}" data-field="tgl_akhir" data-type="date" data-value="${s.tgl_akhir || ''}">${escapeHtml(s.tgl_akhir || '-')}</span>
+                <span class="editable" data-id="${s.id}" data-field="tgl_akhir" data-type="date" data-value="${s.tgl_akhir || ''}">${escapeHtml(dateDisplay.end)}</span>
             </td>
             <td class="editable currency" data-id="${s.id}" data-field="uh_per_hari" data-type="number" data-value="${s.uh_per_hari || 0}">${formatNumber(s.uh_per_hari)}</td>
             <td class="editable" data-id="${s.id}" data-field="uh_jml_hari" data-type="number" data-value="${s.uh_jml_hari || 0}">${s.uh_jml_hari || '-'}</td>
