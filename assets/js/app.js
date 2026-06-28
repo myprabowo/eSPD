@@ -92,8 +92,9 @@ function formatFileSize(bytes) {
 function initInlineEdit(tableEl) {
     if (!tableEl) return;
     
-    tableEl.querySelectorAll('td.editable').forEach(td => {
-        td.addEventListener('click', function(e) {
+    tableEl.querySelectorAll('.editable').forEach(el => {
+        el.addEventListener('click', function(e) {
+            e.stopPropagation();
             if (this.classList.contains('editing')) return;
             startInlineEdit(this);
         });
@@ -111,9 +112,15 @@ function startInlineEdit(td) {
     let input;
     if (type === 'number') {
         input = document.createElement('input');
-        input.type = 'number';
-        input.step = 'any';
-        input.value = currentValue.replace(/[^\d.-]/g, '') || '0';
+        input.type = 'text';
+        input.value = Number(currentValue.replace(/[^\d.-]/g, '') || 0).toLocaleString('id-ID');
+        input.style.textAlign = 'right';
+        input.addEventListener('input', function() {
+            const isNeg = this.value.startsWith('-');
+            let val = this.value.replace(/[^\d]/g, '');
+            if (!val) { this.value = isNeg ? '-' : ''; return; }
+            this.value = (isNeg ? '-' : '') + Number(val).toLocaleString('id-ID');
+        });
     } else if (type === 'date') {
         input = document.createElement('input');
         input.type = 'date';
@@ -130,7 +137,10 @@ function startInlineEdit(td) {
     input.select();
     
     const saveEdit = async () => {
-        const newValue = input.value;
+        let newValue = input.value;
+        if (type === 'number') {
+            newValue = newValue.replace(/\./g, '');
+        }
         td.classList.remove('editing');
         td.classList.add('cell-saving');
         td.textContent = type === 'number' ? formatNumber(newValue) : newValue;
