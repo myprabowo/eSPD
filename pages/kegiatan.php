@@ -24,13 +24,14 @@
                         <th style="width:40px">#</th>
                         <th>Nama Kegiatan</th>
                         <th>Nomor ST</th>
+                        <th>Tanggal ST</th>
                         <th>Kota Tujuan</th>
                         <th>Jumlah SPD</th>
                         <th style="width:120px">Aksi</th>
                     </tr>
                 </thead>
                 <tbody id="kegiatan-tbody">
-                    <tr><td colspan="6" class="empty-state"><p>Memuat data...</p></td></tr>
+                    <tr><td colspan="7" class="empty-state"><p>Memuat data...</p></td></tr>
                 </tbody>
             </table>
         </div>
@@ -90,7 +91,7 @@ async function loadKegiatan() {
     const tbody = document.getElementById('kegiatan-tbody');
     
     if (!result || !result.success || !result.rows.length) {
-        tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg><h3>Belum Ada Kegiatan</h3><p>Klik "Tambah Kegiatan" untuk memulai</p></div></td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg><h3>Belum Ada Kegiatan</h3><p>Klik "Tambah Kegiatan" untuk memulai</p></div></td></tr>';
         return;
     }
     
@@ -99,6 +100,7 @@ async function loadKegiatan() {
             <td>${i + 1}</td>
             <td><strong>${escapeHtml(k.nama_kegiatan)}</strong></td>
             <td style="font-size:0.82rem">${escapeHtml(k.nomor_st || '-')}</td>
+            <td style="font-size:0.82rem">${k.tanggal_st ? formatIndoDate(k.tanggal_st) : '-'}</td>
             <td>${escapeHtml(k.kota_tujuan || '-')}</td>
             <td><span class="badge badge-submitted">${k.jumlah_spd}</span></td>
             <td onclick="event.stopPropagation()">

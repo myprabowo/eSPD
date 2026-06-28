@@ -21,7 +21,7 @@ switch ($action) {
                     (SELECT COUNT(*) FROM spd WHERE id_kegiatan = k.id) as jumlah_spd
              FROM kegiatan k 
              $userFilter
-             ORDER BY k.created_at DESC"
+             ORDER BY k.tanggal_st ASC, k.nama_kegiatan ASC"
         );
         json_response(['success' => true, 'rows' => $rows]);
         break;
