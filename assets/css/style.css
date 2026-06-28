@@ -85,6 +85,8 @@ body {
     color: var(--text-primary);
     line-height: 1.6;
     min-height: 100vh;
+    display: flex;
+    flex-direction: column;
     -webkit-font-smoothing: antialiased;
 }
 
@@ -209,7 +211,9 @@ body::before {
     z-index: 1;
     padding: 1.5rem;
     max-width: 1600px;
+    width: 100%;
     margin: 0 auto;
+    flex: 1;
 }
 
 .container {
@@ -1245,4 +1249,16 @@ tr.clickable:hover {
 
 .search-input-wrapper input {
     padding-left: 2.2rem;
+}
+
+/* --- Footer --- */
+.app-footer {
+    text-align: center;
+    padding: 2rem 1rem;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-top: auto;
+    width: 100%;
+    position: relative;
+    z-index: 1;
 }

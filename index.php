@@ -107,6 +107,9 @@ if (!in_array($page, $validPages)) $page = 'dashboard';
 
 <?php if ($page !== 'login'): ?>
 </main>
+<footer class="app-footer">
+    &copy; 2026 MYP - Unit Pengembangan Layanan dan Bisnis
+</footer>
 <?php endif; ?>
 
 <!-- Toast container -->
