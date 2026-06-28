@@ -88,8 +88,8 @@ switch ($action) {
         if (($used[0]['cnt'] ?? 0) > 0) {
             json_response(['success' => false, 'message' => 'GAGAL: Masih ada SPD terdaftar di kegiatan ini.']);
         }
-        db_execute("DELETE FROM kegiatan WHERE id=? $userFilter", [$id]);
-        if (db_affected_rows() > 0) {
+        $count = db_execute("DELETE FROM kegiatan WHERE id=? $userFilter", [$id]);
+        if ($count > 0) {
             log_activity('DELETE', "Menghapus kegiatan (ID: $id)");
             json_response(['success' => true, 'message' => 'Kegiatan berhasil dihapus!']);
         }
@@ -101,8 +101,7 @@ switch ($action) {
         $check = db_query("SELECT id FROM kegiatan WHERE id = ?$userFilter", [$id]);
         if (empty($check)) json_response(['success' => false, 'message' => 'Kegiatan tidak ditemukan atau akses ditolak.']);
         
-        db_execute("UPDATE spd SET status = 'submitted', updated_at = CURRENT_TIMESTAMP WHERE id_kegiatan = ? AND status = 'draft'", [$id]);
-        $count = db_affected_rows();
+        $count = db_execute("UPDATE spd SET status = 'submitted', updated_at = CURRENT_TIMESTAMP WHERE id_kegiatan = ? AND status = 'draft'", [$id]);
         log_activity('UPDATE', "Submit seluruh SPD draft (ID Kegiatan: $id) sejumlah $count data");
         json_response(['success' => true, 'message' => "Berhasil mengajukan $count SPD."]);
         break;
