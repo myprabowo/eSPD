@@ -89,13 +89,21 @@ switch ($action) {
         break;
 
     case 'delete':
-        $b  = json_body();
         $id = (int)($b['id'] ?? 0);
         if (!$id) json_response(['success' => false, 'message' => 'ID file diperlukan.']);
 
         $file = db_query("SELECT * FROM spd_files WHERE id = ?", [$id]);
         if (empty($file)) json_response(['success' => false, 'message' => 'File tidak ditemukan.']);
         $f = $file[0];
+
+        // Check ownership via SPD -> Kegiatan
+        if (current_role() !== 'Admin Super') {
+            $owner = db_query(
+                "SELECT s.id FROM spd s JOIN kegiatan k ON s.id_kegiatan = k.id WHERE s.id = ? AND k.created_by = ?",
+                [$f['id_spd'], current_username()]
+            );
+            if (empty($owner)) json_response(['success' => false, 'message' => 'Akses ditolak.']);
+        }
 
         // Delete from disk
         $filePath = __DIR__ . '/../uploads/spd_' . $f['id_spd'] . '/' . $f['nama_file'];

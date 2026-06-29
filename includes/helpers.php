@@ -113,6 +113,9 @@ function compute_spd_totals(array $row): array {
                         + $row['total_covid'] + $row['total_biaya_bukti'] 
                         + $row['uang_representatif_total'];
 
+    // Kurang/Lebih (persekot - grand_total)
+    $row['kurang_lebih'] = ($row['persekot'] ?? 0) - $row['grand_total'];
+
     return $row;
 }
 
@@ -140,7 +143,7 @@ function spd_field_definitions(): array {
         'alat_angkut'    => ['type' => 'text',   'label' => 'Alat Angkut',    'group' => 'perjalanan'],
         
         // Tiket
-        'tiket_pp'          => ['type' => 'text',   'label' => 'Tiket PP',         'group' => 'tiket'],
+        'tiket_pp'          => ['type' => 'number', 'label' => 'Tiket PP',         'group' => 'tiket'],
         'tiket_berangkat'   => ['type' => 'number', 'label' => 'Tiket Berangkat',  'group' => 'tiket'],
         'tiket_pulang'      => ['type' => 'number', 'label' => 'Tiket Pulang',     'group' => 'tiket'],
         

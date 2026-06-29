@@ -1,12 +1,13 @@
 -- eSPD Database Schema (MySQL)
 
-CREATE TABLE IF NOT EXISTS audit_log (
+CREATE TABLE IF NOT EXISTS audit_logs (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT,
-    username VARCHAR(100),
-    action VARCHAR(50),
-    description TEXT,
-    ip_address VARCHAR(50),
+    timestamp DATETIME NOT NULL,
+    user VARCHAR(100) DEFAULT '',
+    role VARCHAR(50) DEFAULT '',
+    activity VARCHAR(50) NOT NULL,
+    details TEXT,
+    ip_address VARCHAR(50) DEFAULT '',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

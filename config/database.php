@@ -2,11 +2,8 @@
 /**
  * database.php — eSPD Database Configuration
  * 
- * Provides two connections:
- * 1. SQLite — main eSPD database (read/write)
- * 2. MySQL  — Sistem Pelatihan database (read-only, for pengajar data)
- * 
- * Designed for easy migration: change DSN to MySQL when ready.
+ * Provides database connection to MySQL (Sistem Pelatihan / eSPD shared database).
+ * All data (kegiatan, SPD, audit logs, pengajar, users) resides in the same MySQL instance.
  */
 
 ini_set('display_errors', '0');
@@ -35,8 +32,7 @@ foreach ($envPaths as $p) {
     if (file_exists($p)) { load_env($p); break; }
 }
 
-// ---------- SQLite singleton (main eSPD DB) ----------
-// Migrated to MySQL
+// ---------- Main DB singleton (MySQL) ----------
 function get_db(): PDO {
     return get_mysql();
 }
@@ -45,7 +41,7 @@ function get_db(): PDO {
  * Initialize database schema from schema.sql if tables are missing.
  */
 function init_schema(PDO $pdo): void {
-    $check = $pdo->query("SHOW TABLES LIKE 'users'");
+    $check = $pdo->query("SHOW TABLES LIKE 'kegiatan'");
     if ($check->fetch()) return; // Already initialized
 
     $schemaFile = __DIR__ . '/schema_mysql.sql';
@@ -93,7 +89,7 @@ function get_mysql(): ?PDO {
     return $pdo;
 }
 
-// ---------- SQLite helpers ----------
+// ---------- Query helpers ----------
 function db_query(string $sql, array $params = []): array {
     $stmt = get_db()->prepare($sql);
     $stmt->execute($params);
@@ -110,7 +106,7 @@ function db_last_id(): string {
     return get_db()->lastInsertId();
 }
 
-// ---------- MySQL helpers (read-only) ----------
+// ---------- MySQL helpers (read-only, for pengajar data) ----------
 function db_mysql_query(string $sql, array $params = []): array {
     $pdo = get_mysql();
     if (!$pdo) return [];

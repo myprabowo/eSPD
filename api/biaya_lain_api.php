@@ -103,14 +103,20 @@ switch ($action) {
         $id = (int)($b['id'] ?? $_POST['id'] ?? 0);
         if (!$id) json_response(['success' => false, 'message' => 'ID diperlukan.']);
         
-        $row = db_query("SELECT id_kegiatan, file_bukti FROM kegiatan_biaya_lain WHERE id = ?", [$id]);
-        if (!empty($row)) {
-            $f = $row[0]['file_bukti'];
-            $k = $row[0]['id_kegiatan'];
-            if ($f) {
-                $path = __DIR__ . '/../uploads/kegiatan_' . $k . '/' . $f;
-                if (file_exists($path)) unlink($path);
-            }
+        $row = db_query("SELECT bl.id_kegiatan, bl.file_bukti FROM kegiatan_biaya_lain bl JOIN kegiatan k ON bl.id_kegiatan = k.id WHERE bl.id = ?", [$id]);
+        if (empty($row)) json_response(['success' => false, 'message' => 'Data tidak ditemukan.']);
+        
+        // Check ownership
+        if (current_role() !== 'Admin Super') {
+            $owner = db_query("SELECT id FROM kegiatan WHERE id = ? AND created_by = ?", [$row[0]['id_kegiatan'], current_username()]);
+            if (empty($owner)) json_response(['success' => false, 'message' => 'Akses ditolak.']);
+        }
+        
+        $f = $row[0]['file_bukti'];
+        $k = $row[0]['id_kegiatan'];
+        if ($f) {
+            $path = __DIR__ . '/../uploads/kegiatan_' . $k . '/' . $f;
+            if (file_exists($path)) unlink($path);
         }
         
         db_execute("DELETE FROM kegiatan_biaya_lain WHERE id = ?", [$id]);

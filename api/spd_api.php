@@ -23,21 +23,20 @@ switch ($action) {
     case 'list':
         $id_kegiatan = (int)($b['id_kegiatan'] ?? $_GET['id_kegiatan'] ?? 0);
         if (!$id_kegiatan) json_response(['success' => false, 'message' => 'ID kegiatan diperlukan.']);
-        $userFilter = current_role() === 'Admin Super' ? "" : " AND created_by = '" . current_username() . "'";
+        $params = [$id_kegiatan];
+        $userFilter = '';
+        if (current_role() !== 'Admin Super') {
+            $userFilter = ' AND s.created_by = ?';
+            $params[] = current_username();
+        }
         
         $rows = db_query(
-            "SELECT * FROM spd WHERE id_kegiatan = ?$userFilter ORDER BY nama ASC",
-            [$id_kegiatan]
+            "SELECT s.*, (SELECT COUNT(*) FROM spd_files WHERE id_spd = s.id) as jumlah_file
+             FROM spd s WHERE s.id_kegiatan = ?$userFilter ORDER BY s.nama ASC",
+            $params
         );
         // Compute totals for each row
         $rows = array_map('compute_spd_totals', $rows);
-        
-        // Count files per SPD
-        foreach ($rows as &$row) {
-            $files = db_query("SELECT COUNT(*) as cnt FROM spd_files WHERE id_spd = ?", [$row['id']]);
-            $row['jumlah_file'] = $files[0]['cnt'] ?? 0;
-        }
-        unset($row);
         
         json_response(['success' => true, 'rows' => $rows]);
         break;
@@ -155,16 +154,23 @@ switch ($action) {
             $value = trim((string) $value);
         }
 
-        $userFilter = current_role() === 'Admin Super' ? "" : " AND created_by = '" . current_username() . "'";
+        $params = [$value, $id];
+        $userFilter = '';
+        if (current_role() !== 'Admin Super') {
+            $userFilter = ' AND created_by = ?';
+            $params[] = current_username();
+        }
         db_execute(
             "UPDATE spd SET $field = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?$userFilter",
-            [$value, $id]
+            $params
         );
         
         if ($field === 'golongan') {
             $pangkat = get_pangkat_from_golongan((string)$value);
             if ($pangkat !== '') {
-                db_execute("UPDATE spd SET pangkat = ? WHERE id = ?$userFilter", [$pangkat, $id]);
+                $pParams = [$pangkat, $id];
+                if (current_role() !== 'Admin Super') $pParams[] = current_username();
+                db_execute("UPDATE spd SET pangkat = ? WHERE id = ?$userFilter", $pParams);
             }
         }
 

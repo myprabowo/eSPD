@@ -22,6 +22,11 @@ switch ($action) {
         if (empty($kegiatan)) { http_response_code(404); exit('Kegiatan tidak ditemukan'); }
         $kegiatan = $kegiatan[0];
 
+        // Check ownership
+        if (current_role() !== 'Admin Super' && ($kegiatan['created_by'] ?? '') !== current_username()) {
+            http_response_code(403); exit('Akses ditolak');
+        }
+
         $spds = db_query("SELECT * FROM spd WHERE id_kegiatan = ? ORDER BY nama ASC", [$id_kegiatan]);
 
         $header = [
@@ -72,6 +77,11 @@ switch ($action) {
         $kegiatan = db_query("SELECT * FROM kegiatan WHERE id = ?", [$id_kegiatan]);
         if (empty($kegiatan)) { http_response_code(404); exit('Kegiatan tidak ditemukan'); }
         $kegiatan = $kegiatan[0];
+
+        // Check ownership
+        if (current_role() !== 'Admin Super' && ($kegiatan['created_by'] ?? '') !== current_username()) {
+            http_response_code(403); exit('Akses ditolak');
+        }
 
         $zipPath = generate_export_zip($id_kegiatan);
         if (!$zipPath || !file_exists($zipPath)) {
