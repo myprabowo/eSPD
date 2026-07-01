@@ -12,10 +12,12 @@ require_login();
 $b      = json_body();
 $action = $b['action'] ?? $_POST['action'] ?? $_GET['action'] ?? '';
 
-function check_spd_access(int $id): bool {
+function check_spd_access(int $id, bool $requireDraft = false): bool {
     if (current_role() === 'Admin Super') return true;
-    $row = db_query("SELECT id FROM spd WHERE id = ? AND created_by = ?", [$id, current_username()]);
-    return !empty($row);
+    $row = db_query("SELECT id, status FROM spd WHERE id = ? AND created_by = ?", [$id, current_username()]);
+    if (empty($row)) return false;
+    if ($requireDraft && $row[0]['status'] !== 'draft') return false;
+    return true;
 }
 
 switch ($action) {
@@ -98,7 +100,7 @@ switch ($action) {
     case 'update':
         $id = (int)($b['id'] ?? 0);
         if (!$id) json_response(['success' => false, 'message' => 'ID diperlukan.']);
-        if (!check_spd_access($id)) json_response(['success' => false, 'message' => 'Akses ditolak.']);
+        if (!check_spd_access($id, true)) json_response(['success' => false, 'message' => 'Akses ditolak atau SPD sudah tidak dalam status Draft.']);
 
         // Build dynamic update from allowed fields
         $fields = spd_field_definitions();
@@ -145,7 +147,7 @@ switch ($action) {
         
         if (!$id || !$field) json_response(['success' => false, 'message' => 'Parameter kurang.']);
         if (!is_valid_spd_field($field)) json_response(['success' => false, 'message' => 'Field tidak valid.']);
-        if (!check_spd_access($id)) json_response(['success' => false, 'message' => 'Akses ditolak.']);
+        if (!check_spd_access($id, true)) json_response(['success' => false, 'message' => 'Akses ditolak atau SPD tidak dalam status Draft.']);
 
         $fieldDef = spd_field_definitions()[$field];
         if ($fieldDef['type'] === 'number') {
@@ -193,11 +195,32 @@ switch ($action) {
         log_activity('UPDATE', "Mengubah status SPD (ID: $id) menjadi $status");
         json_response(['success' => true, 'message' => "Status diubah ke: $status"]);
         break;
+        
+    case 'reject':
+        $id = (int)($b['id'] ?? 0);
+        $alasan = trim($b['alasan'] ?? '');
+        if (!$id || $alasan === '') {
+            json_response(['success' => false, 'message' => 'ID dan alasan diperlukan.']);
+        }
+        if (current_role() !== 'Admin Super') {
+            json_response(['success' => false, 'message' => 'Hanya Admin Super yang bisa melakukan reject.']);
+        }
+        
+        $row = db_query("SELECT catatan FROM spd WHERE id = ?", [$id]);
+        if (empty($row)) json_response(['success' => false, 'message' => 'SPD tidak ditemukan.']);
+        
+        $oldCatatan = $row[0]['catatan'] ?? '';
+        $newCatatan = "[Ditolak pada " . date('Y-m-d H:i:s') . "]\nAlasan: " . $alasan . "\n\n" . $oldCatatan;
+        
+        db_execute("UPDATE spd SET status = 'draft', catatan = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?", [$newCatatan, $id]);
+        log_activity('REJECT', "Menolak SPD (ID: $id). Alasan: $alasan");
+        json_response(['success' => true, 'message' => 'SPD telah ditolak dan dikembalikan ke status Draft.']);
+        break;
 
     case 'delete':
         $id = (int)($b['id'] ?? 0);
         if (!$id) json_response(['success' => false, 'message' => 'ID diperlukan.']);
-        if (!check_spd_access($id)) json_response(['success' => false, 'message' => 'Akses ditolak.']);
+        if (!check_spd_access($id, true)) json_response(['success' => false, 'message' => 'Akses ditolak atau tidak dalam status Draft.']);
         
         // Delete files from disk
         $files = db_query("SELECT * FROM spd_files WHERE id_spd = ?", [$id]);

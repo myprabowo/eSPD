@@ -237,6 +237,7 @@ function generate_export_zip(int $id_kegiatan): string {
     }
 
     // Add evidence files per person
+    $catLabels = file_categories();
     foreach ($spds as $i => $spd) {
         $files = db_query("SELECT * FROM spd_files WHERE id_spd = ?", [$spd['id']]);
         if (empty($files)) continue;
@@ -245,7 +246,9 @@ function generate_export_zip(int $id_kegiatan): string {
         foreach ($files as $f) {
             $filePath = __DIR__ . '/../uploads/spd_' . $spd['id'] . '/' . $f['nama_file'];
             if (file_exists($filePath)) {
-                $zip->addFile($filePath, "Bukti_Perjalanan/{$folderName}/{$f['nama_asli']}");
+                $kategoriName = safe_filename($catLabels[$f['kategori']] ?? $f['kategori']);
+                $newFileName = $kategoriName . '_' . $f['nama_asli'];
+                $zip->addFile($filePath, "Bukti_Perjalanan/{$folderName}/{$newFileName}");
             }
         }
     }

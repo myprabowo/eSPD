@@ -246,11 +246,24 @@ $kegiatan = $kegiatan[0];
 </div>
 
 <script>
+const CURRENT_ROLE = '<?= current_role() ?>';
 const ID_KEGIATAN = <?= $id_kegiatan ?>;
 const PERSEKOT_KEGIATAN = <?= (float)($kegiatan['persekot'] ?? 0) ?>;
 let allPengajar = [];
 let sumTiket = 0, sumUH = 0, sumHotel = 0, sumTransport = 0, sumRep = 0, sumLain = 0, grandTotalSpd = 0;
 let sumBiayaLainOps = 0;
+
+async function rejectSpd(id) {
+    const alasan = prompt("Masukkan alasan penolakan (keterangan):");
+    if (!alasan) return;
+    const result = await postAPI('api/spd_api.php', { action: 'reject', id, alasan });
+    if (result && result.success) {
+        toast(result.message, 'success');
+        loadSpdList();
+    } else {
+        toast(result?.message || 'Gagal menolak SPD.', 'error');
+    }
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     loadSpdList();
@@ -329,6 +342,7 @@ async function loadSpdList() {
                 <div style="display:flex; gap:0.25rem; justify-content:center;">
                     <a href="?page=spd_detail&id=${s.id}" class="btn btn-sm btn-secondary" title="Detail">📋</a>
                     <button class="btn btn-sm btn-danger" onclick="deleteSpd(${s.id})" title="Hapus">✕</button>
+                    ${(CURRENT_ROLE === 'Admin Super' && s.status !== 'draft') ? `<button class="btn btn-sm btn-warning" onclick="rejectSpd(${s.id})" title="Reject">↩️</button>` : ''}
                 </div>
             </td>
         </tr>
