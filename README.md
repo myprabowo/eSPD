@@ -91,6 +91,17 @@ graph TD
 - `pages/`    : Antarmuka pengguna (UI) dan logika tampilan (dashboard, daftar kegiatan, daftar SPD, detail SPD).
 - `uploads/`  : Direktori penyimpanan dokumen bukti fisik yang diunggah pengguna.
 
+## Struktur Database
+
+Sistem eSPD menggunakan beberapa tabel utama dalam database relasional:
+
+- **`users`**: Menyimpan data autentikasi pengguna dan role (Admin Super, user biasa).
+- **`kegiatan`**: Menyimpan data utama acara/kegiatan dinas, nomor surat tugas (ST), dan pagu persekot (uang muka).
+- **`spd`**: Tabel transaksi utama yang menyimpan rincian perjalanan dinas per orang (terhubung ke tabel `kegiatan`). Berisi informasi lengkap dari identitas, biaya tiket, hotel, transportasi, hingga perhitungan total biaya dan status (Draft, Submitted, dll).
+- **`spd_files`**: Menyimpan metadata file bukti fisik perjalanan (tiket, kuitansi hotel, dll.) yang diunggah untuk masing-masing peserta.
+- **`kegiatan_biaya_lain`**: Menyimpan rincian biaya operasional ekstra di tingkat kegiatan (di luar rincian peserta) beserta file buktinya.
+- **`audit_logs`**: Menyimpan riwayat aktivitas pengguna (log) di dalam sistem untuk keperluan pemantauan dan jejak audit (audit trail).
+
 ## Keamanan
 
 Aplikasi menggunakan autentikasi berbasis sesi. Pastikan environment production menggunakan HTTPS untuk mencegah penyadapan sesi. File bukti perorangan dan kegiatan diakses melalui endpoint khusus untuk memastikan perlindungan dokumen terhadap akses publik secara langsung.
