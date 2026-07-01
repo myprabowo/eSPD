@@ -55,13 +55,16 @@ function generate_xlsx(array $header, array $rows, string $sheetName = 'SPD', ar
                 $cells .= "<c r=\"{$ref}\" t=\"s\" s=\"1\"><v>{$idx}</v></c>";
             }
         }
-        $sheetRows .= "<row r=\"{$rowNum}\">{$cells}</row>";
+        $sheetRows .= "<row r=\"{$rowNum}\" ht=\"25\" customHeight=\"1\">{$cells}</row>";
         $rowNum++;
     }
 
     // Data rows
     foreach ($rows as $ri => $row) {
         $cells = '';
+        $rs = ($ri % 2 === 0) ? 2 : 3; // 2 = odd row style, 3 = even row style
+        $cs = ($ri % 2 === 0) ? 4 : 5; // 4 = odd row currency, 5 = even row currency
+
         foreach (array_values($row) as $ci => $cell) {
             $col = $colLetter($ci + 1);
             $ref = $col . $rowNum;
@@ -71,34 +74,48 @@ function generate_xlsx(array $header, array $rows, string $sheetName = 'SPD', ar
             
             if ($isText) {
                 $idx = $addStr((string) $cell);
-                $cells .= "<c r=\"{$ref}\" t=\"s\"><v>{$idx}</v></c>";
+                $cells .= "<c r=\"{$ref}\" t=\"s\" s=\"{$rs}\"><v>{$idx}</v></c>";
             } elseif ($isCurrency && is_numeric($cell) && $cell !== '') {
-                $cells .= "<c r=\"{$ref}\" s=\"2\"><v>{$cell}</v></c>";
+                $cells .= "<c r=\"{$ref}\" s=\"{$cs}\"><v>{$cell}</v></c>";
             } elseif (is_numeric($cell) && $cell !== '') {
-                $cells .= "<c r=\"{$ref}\"><v>{$cell}</v></c>";
+                $cells .= "<c r=\"{$ref}\" s=\"{$rs}\"><v>{$cell}</v></c>";
             } else {
                 $idx = $addStr((string) $cell);
-                $cells .= "<c r=\"{$ref}\" t=\"s\"><v>{$idx}</v></c>";
+                $cells .= "<c r=\"{$ref}\" t=\"s\" s=\"{$rs}\"><v>{$idx}</v></c>";
             }
         }
         $sheetRows .= "<row r=\"{$rowNum}\">{$cells}</row>";
         $rowNum++;
     }
 
-    // Style for header (bold) and currency (numFmtId=3)
+    // Style for header (bold white on dark blue), zebra rows, borders, and currency
     $styleXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
         . '<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
-        . '<fonts count="2"><font><sz val="11"/><name val="Calibri"/></font>'
-        . '<font><b/><sz val="11"/><name val="Calibri"/></font></fonts>'
-        . '<fills count="3"><fill><patternFill patternType="none"/></fill>'
-        . '<fill><patternFill patternType="gray125"/></fill>'
-        . '<fill><patternFill patternType="solid"><fgColor rgb="FF4472C4"/></patternFill></fill></fills>'
-        . '<borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders>'
+        . '<fonts count="3">'
+        .   '<font><sz val="11"/><name val="Calibri"/></font>'
+        .   '<font><b/><sz val="11"/><color rgb="FFFFFFFF"/><name val="Calibri"/></font>'
+        .   '<font><sz val="11"/><name val="Calibri"/></font>'
+        . '</fonts>'
+        . '<fills count="5">'
+        .   '<fill><patternFill patternType="none"/></fill>'
+        .   '<fill><patternFill patternType="gray125"/></fill>'
+        .   '<fill><patternFill patternType="solid"><fgColor rgb="FF003366"/></patternFill></fill>'
+        .   '<fill><patternFill patternType="solid"><fgColor rgb="FFF5F8FF"/></patternFill></fill>'
+        .   '<fill><patternFill patternType="solid"><fgColor rgb="FFFFFFFF"/></patternFill></fill>'
+        . '</fills>'
+        . '<borders count="3">'
+        .   '<border><left/><right/><top/><bottom/><diagonal/></border>'
+        .   '<border><left style="thin"><color rgb="FFDDDDDD"/></left><right style="thin"><color rgb="FFDDDDDD"/></right><top style="thin"><color rgb="FFDDDDDD"/></top><bottom style="thin"><color rgb="FFDDDDDD"/></bottom><diagonal/></border>'
+        .   '<border><left style="thin"><color rgb="FFAAAAAA"/></left><right style="thin"><color rgb="FFAAAAAA"/></right><top style="thin"><color rgb="FFAAAAAA"/></top><bottom style="thin"><color rgb="FFAAAAAA"/></bottom><diagonal/></border>'
+        . '</borders>'
         . '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>'
-        . '<cellXfs count="3">'
-        . '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>'
-        . '<xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1"/>'
-        . '<xf numFmtId="3" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>'
+        . '<cellXfs count="6">'
+        .   '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>'
+        .   '<xf numFmtId="0" fontId="1" fillId="2" borderId="2" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>'
+        .   '<xf numFmtId="0" fontId="2" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment vertical="top" wrapText="1"/></xf>'
+        .   '<xf numFmtId="0" fontId="2" fillId="4" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment vertical="top" wrapText="1"/></xf>'
+        .   '<xf numFmtId="3" fontId="2" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyNumberFormat="1" applyAlignment="1"><alignment vertical="top"/></xf>'
+        .   '<xf numFmtId="3" fontId="2" fillId="4" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyNumberFormat="1" applyAlignment="1"><alignment vertical="top"/></xf>'
         . '</cellXfs>'
         . '</styleSheet>';
 
@@ -112,9 +129,15 @@ function generate_xlsx(array $header, array $rows, string $sheetName = 'SPD', ar
         $mergeXml .= "</mergeCells>";
     }
 
+    $headerRowCount = count($headerRows);
     $sheetXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
         . '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"'
         . ' xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'
+        . '<sheetViews>'
+        . '<sheetView tabSelected="1" workbookViewId="0">'
+        . "<pane ySplit=\"{$headerRowCount}\" topLeftCell=\"A" . ($headerRowCount + 1) . "\" activePane=\"bottomLeft\" state=\"frozen\"/>"
+        . '</sheetView>'
+        . '</sheetViews>'
         . '<sheetData>' . $sheetRows . '</sheetData>'
         . $mergeXml
         . '</worksheet>';
