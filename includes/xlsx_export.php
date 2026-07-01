@@ -8,7 +8,7 @@
  * Generate XLSX file content from header + rows.
  * Returns the path to a temporary file.
  */
-function generate_xlsx(array $header, array $rows, string $sheetName = 'SPD'): string {
+function generate_xlsx(array $header, array $rows, string $sheetName = 'SPD', array $colTypes = [], array $merges = []): string {
     $xe = fn(string $s): string => htmlspecialchars($s, ENT_XML1 | ENT_QUOTES, 'UTF-8');
 
     // Build shared strings
@@ -22,7 +22,13 @@ function generate_xlsx(array $header, array $rows, string $sheetName = 'SPD'): s
         return $stringIndex[$s];
     };
 
-    foreach ($header as $h) { $addStr((string) $h); }
+    // Header strings
+    $headerRows = is_array($header[0] ?? null) ? $header : [$header];
+    foreach ($headerRows as $hr) {
+        foreach ($hr as $h) {
+            $addStr((string) $h);
+        }
+    }
 
     // Build sheet rows
     $colLetter = function (int $n): string {
@@ -36,7 +42,6 @@ function generate_xlsx(array $header, array $rows, string $sheetName = 'SPD'): s
     $sheetRows = '';
 
     // Header rows
-    $headerRows = is_array($header[0] ?? null) ? $header : [$header];
     $rowNum = 1;
     foreach ($headerRows as $hr) {
         $cells = '';
@@ -56,14 +61,20 @@ function generate_xlsx(array $header, array $rows, string $sheetName = 'SPD'): s
 
     // Data rows
     foreach ($rows as $ri => $row) {
-        $rowNum = $ri + 2;
         $cells = '';
         foreach (array_values($row) as $ci => $cell) {
             $col = $colLetter($ci + 1);
             $ref = $col . $rowNum;
             
-            // Check if numeric
-            if (is_numeric($cell) && $cell !== '') {
+            $isText = in_array($ci, $colTypes['text'] ?? []);
+            $isCurrency = in_array($ci, $colTypes['currency'] ?? []);
+            
+            if ($isText) {
+                $idx = $addStr((string) $cell);
+                $cells .= "<c r=\"{$ref}\" t=\"s\"><v>{$idx}</v></c>";
+            } elseif ($isCurrency && is_numeric($cell) && $cell !== '') {
+                $cells .= "<c r=\"{$ref}\" s=\"2\"><v>{$cell}</v></c>";
+            } elseif (is_numeric($cell) && $cell !== '') {
                 $cells .= "<c r=\"{$ref}\"><v>{$cell}</v></c>";
             } else {
                 $idx = $addStr((string) $cell);
@@ -71,9 +82,10 @@ function generate_xlsx(array $header, array $rows, string $sheetName = 'SPD'): s
             }
         }
         $sheetRows .= "<row r=\"{$rowNum}\">{$cells}</row>";
+        $rowNum++;
     }
 
-    // Style for header (bold)
+    // Style for header (bold) and currency (numFmtId=3)
     $styleXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
         . '<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
         . '<fonts count="2"><font><sz val="11"/><name val="Calibri"/></font>'
@@ -83,14 +95,29 @@ function generate_xlsx(array $header, array $rows, string $sheetName = 'SPD'): s
         . '<fill><patternFill patternType="solid"><fgColor rgb="FF4472C4"/></patternFill></fill></fills>'
         . '<borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders>'
         . '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>'
-        . '<cellXfs count="2"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>'
-        . '<xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1"/></cellXfs>'
+        . '<cellXfs count="3">'
+        . '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>'
+        . '<xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1"/>'
+        . '<xf numFmtId="3" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>'
+        . '</cellXfs>'
         . '</styleSheet>';
+
+    $mergeXml = '';
+    if (!empty($merges)) {
+        $mcCount = count($merges);
+        $mergeXml = "<mergeCells count=\"{$mcCount}\">";
+        foreach ($merges as $m) {
+            $mergeXml .= "<mergeCell ref=\"{$m}\"/>";
+        }
+        $mergeXml .= "</mergeCells>";
+    }
 
     $sheetXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
         . '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"'
         . ' xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'
-        . '<sheetData>' . $sheetRows . '</sheetData></worksheet>';
+        . '<sheetData>' . $sheetRows . '</sheetData>'
+        . $mergeXml
+        . '</worksheet>';
 
     $ssItems = '';
     foreach ($strings as $s) {
@@ -265,7 +292,24 @@ function generate_export_zip(int $id_kegiatan): string {
     }
 
     // Generate XLSX
-    $xlsxPath = generate_xlsx($exportHeader, $exportRows, 'Rekap SPD');
+    $colTypes = [
+        'text' => [1, 4, 63, 66],
+        'currency' => [10, 11, 12, 14, 15, 17, 18, 20, 21, 22, 24, 25, 26, 28, 30, 32, 34, 36, 38, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 57, 75, 76, 77, 95, 96, 97, 98, 99]
+    ];
+    $merges = ['K1:M1', 'N1:P1', 'Q1:S1', 'T1:V1', 'W1:Y1', 'AM1:AP1', 'AQ1:AV1', 'AW1:AY1', 'AZ1:BC1', 'BG1:BJ1', 'BL1:BN1', 'BU1:BV1', 'BX1:CQ1'];
+    
+    // Vertical merges for cells that span row 1 and 2
+    $verticalMergeCols = array_merge(range(0, 9), range(25, 37), [62, 66, 67, 68, 69, 70, 71, 74]);
+    foreach ($verticalMergeCols as $colIndex) {
+        $col = '';
+        $n = $colIndex + 1;
+        while ($n > 0) {
+            $n--; $col = chr(65 + ($n % 26)) . $col; $n = intdiv($n, 26);
+        }
+        $merges[] = "{$col}1:{$col}2";
+    }
+
+    $xlsxPath = generate_xlsx($exportHeader, $exportRows, 'Rekap SPD', $colTypes, $merges);
 
     // Build ZIP
     $zipPath = tempnam(sys_get_temp_dir(), 'spd_zip_');
