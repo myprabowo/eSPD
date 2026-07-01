@@ -35,16 +35,24 @@ function generate_xlsx(array $header, array $rows, string $sheetName = 'SPD'): s
 
     $sheetRows = '';
 
-    // Header row
+    // Header rows
+    $headerRows = is_array($header[0] ?? null) ? $header : [$header];
     $rowNum = 1;
-    $cells = '';
-    foreach ($header as $ci => $h) {
-        $col = $colLetter($ci + 1);
-        $ref = $col . $rowNum;
-        $idx = $addStr((string) $h);
-        $cells .= "<c r=\"{$ref}\" t=\"s\" s=\"1\"><v>{$idx}</v></c>";
+    foreach ($headerRows as $hr) {
+        $cells = '';
+        foreach (array_values($hr) as $ci => $h) {
+            $col = $colLetter($ci + 1);
+            $ref = $col . $rowNum;
+            if ($h === '') {
+                $cells .= "<c r=\"{$ref}\" s=\"1\"/>";
+            } else {
+                $idx = $addStr((string) $h);
+                $cells .= "<c r=\"{$ref}\" t=\"s\" s=\"1\"><v>{$idx}</v></c>";
+            }
+        }
+        $sheetRows .= "<row r=\"{$rowNum}\">{$cells}</row>";
+        $rowNum++;
     }
-    $sheetRows .= "<row r=\"{$rowNum}\">{$cells}</row>";
 
     // Data rows
     foreach ($rows as $ri => $row) {
@@ -153,73 +161,106 @@ function generate_export_zip(int $id_kegiatan): string {
 
     // Build Excel header/rows
     $exportHeader = [
-        'No', 'No SPPD', 'Tgl SPPD', 'Nama', 'NIP', 'Golongan', 'Pangkat', 'Jabatan', 'Instansi',
-        'Kota Asal', 'Kota Tujuan', 'Tiba Di', 'Tgl Mulai', 'Tgl Akhir', 'Alat Angkut',
-        'Tiket PP', 'Tiket Berangkat', 'Tiket Pulang', 'Total Tiket',
-        'UH Jml Hari', 'UH Per Hari', 'UH Total',
-        'UH2 Jml Hari', 'UH2 Per Hari', 'UH2 Total',
-        'UH3 Jml Hari', 'UH3 Per Hari', 'UH3 Total',
-        'Fullboard/Hari', 'Fullboard Hari', 'Fullboard Total',
-        'Tarif Maks Hotel',
-        'Hotel 1 Tarif', 'Hotel 1 Hari', 'Hotel 1 Total',
-        'Hotel 2 Tarif', 'Hotel 2 Hari', 'Hotel 2 Total',
-        'Hotel 3 Tarif', 'Hotel 3 Hari', 'Hotel 3 Total',
-        'Hotel 4 Tarif', 'Hotel 4 Hari', 'Hotel 4 Total',
-        'Hotel 5 Tarif', 'Hotel 5 Hari', 'Hotel 5 Total',
-        'Hotel 6 Tarif', 'Hotel 6 Hari', 'Hotel 6 Total',
-        'Total Hotel',
-        'DPR Tarif Hotel', 'DPR Malam', 'DPR Koefisien', 'DPR Biaya Penginapan',
-        'Transport PP', 'Ke Bandara', 'Bandara-Tujuan', 'Tujuan-Bandara', 'Bandara-Kedudukan', 'Kedudukan-Tujuan',
-        'Total Transport',
-        'Covid Berangkat', 'Covid Pulang', 'Covid Tanpa Bukti', 'Total Covid',
-        'Biaya Tol', 'Biaya Taksi', 'Biaya Bensin', 'Biaya Riil Lainnya', 'Total Biaya Bukti',
-        'Uang Representatif', 'Representatif Hari', 'Representatif Total',
-        'Tingkat Perjadin',
-        'No Rekening', 'Bank', 'Nama Rekening',
-        'No ST', 'Tgl ST', 'Perihal ST',
-        'Tgl Dok Diterima', 'Tgl Rincian SPD', 'UP/LS', 'Tgl Pengajuan', 'Tgl Pembayaran',
-        'Persekot', 'Grand Total', 'Kurang/Lebih',
-        'Akun', 'No Routing', 'PIC', 'Bendahara', 'PPK', 'Unit',
-        'Status', 'Catatan',
+        ["NO", "No_SPPD", "Tgl_sppd", "Nama", "NIP", "asal", "tujuan", "Tiba Di", "tgl_mulai", "tgl_akhir", "TIKET", "", "", "Uang Harian", "", "", "Uang Harian KOTA KE 2", "", "", "Uang Harian Kota ke 3", "", "", "Uang harian Fullboard", "", "", "TARIF MAKSIMAL HOTEL SBU", "HOTEL dengan KUITANSI (ISI TARIF PER HARI)", "JML HARI", "KUITANSI HOTEL KE 2-ISI TARIF PER HARI (APABILA GANTI-GANTI HOTEL)", "JML HARI (HOTEL KE-2-APABILA GANTI HOTEL)", "KUITANSI HOTEL KE 3-ISI TARIF PER HARI (APABILA GANTI-GANTI HOTEL)", "JML HARI (HOTEL KE-3-APABILA GANTI HOTEL)", "KUITANSI HOTEL KE 4-ISI TARIF PER HARI (APABILA GANTI-GANTI HOTEL)", "JML HARI (HOTEL KE-4-APABILA GANTI HOTEL)", "KUITANSI HOTEL KE 5-ISI TARIF PER HARI (APABILA GANTI-GANTI HOTEL)", "JML HARI (HOTEL KE-5-APABILA GANTI HOTEL)", "KUITANSI HOTEL KE 6-ISI TARIF PER HARI (APABILA GANTI-GANTI HOTEL)", "JML HARI (HOTEL KE-6-APABILA GANTI HOTEL)", "Penginapan DPR", "", "", "", "TRANSPORT DPR", "", "", "", "", "", "TEST COVID", "", "", "Komponen Transportasi Dengan Bukti", "", "", "", "", "", "", "Data SPD", "", "", "", "Tingkat Perjalanan Dinas", "Surat Tugas", "", "", "No. Rek.", "Bank", "Nama", "Alat Angkut yang Digunakan", "Tanggal Dokumen diterima PIC Keu", "Tanggal penyampaian Rincian SPD dan DPR", "Pengajuan Pembayaran/ Penerimaan Dok DS dari Pelaksana Perjadin", "", "Tanggal Pembayaran", "PERSEKOT", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "Tiket PP", "Berangkat", "Pulang", "jml_hari", "uang harian (per satu hr)", "harian total", "jml_hari", "uang harian (per satu hr)", "harian total", "jml_hari", "uang harian (per satu hr)", "harian total", "Fullboard (per satu hari)", "Jumlah Hari", "Fullboard total", "", "", "", "", "", "", "", "", "", "", "", "", "", "TARIF HOTEL SESUAI GOLONGAN", "Malam hotel", "0.3", "Penggantian Biaya Penginapan", "Penggantian biaya transport dari tempat kedudukan ke tempat tujuan (PP)", "Penggantian biaya transport dari tempat kedudukan ke bandara", "Penggantian biaya transport dari bandara ke tempat tujuan", "Penggantian biaya transport dari tempat tujuan ke bandara", "Penggantian biaya transport dari bandara ke tempat kedudukan", "Penggantian biaya transport dari tempat kedudukan ke tempat tujuan/dari tempat tujuan ke tempat kedudukan", "Biaya Test Covid 19 berangkat\nDENGAN BUKTI", "pulang", "Biaya Test Covid 19\nISI DISINI JIKA TANPA BUKTI", "Biaya Tol", "Taksi", "Bensin", "Penggantian Biaya Riil Lainnya", "Uang Representatif", "Jumlah Hari", "Jumlah Uang Representatif", "Golongan", "Pangkat", "Jabatan", "Instansi", "", "Nomor", "Tanggal", "Perihal", "", "", "Rekening", "", "", "", "UP/LS", "Tanggal", "", "JUMLAH", "Persekot", "Kurang/Lebih", "", "", "", "", "", "", "AKUN", "No Routing", "PIC", "Bendahara", "PPK", "UNIT", "", "", "", "", "", "Total Tiket", "Total Hotel", "Total Taksi, Tol dan BBM", "Total Uang Representatif", "Total UH"],
+        ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41.0", "42", "43", "44", "45", "46", "47", "48", "49", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59", "60", "61", "62", "63", "64", "65", "66", "", "68", "69", "70", "71", "72", "73", "74", "75", "76", "77", "78", "79.0", "80.0", "81.0", "82.0", "83.0", "84.0", "85", "86", "87", "88", "89", "", "", "", "", "", "", "", "", "", "", ""]
     ];
 
     $exportRows = [];
     foreach ($spds as $i => $spd) {
         $spd = compute_spd_totals($spd);
         $exportRows[] = [
-            $i + 1,
-            $spd['no_sppd'], $spd['tgl_sppd'], $spd['nama'], $spd['nip'],
-            $spd['golongan'], $spd['pangkat'], $spd['jabatan'], $spd['instansi'],
-            $spd['kota_asal'], $spd['kota_tujuan'], $spd['tiba_di'],
-            $spd['tgl_mulai'], $spd['tgl_akhir'], $spd['alat_angkut'],
-            $spd['tiket_pp'], $spd['tiket_berangkat'], $spd['tiket_pulang'], $spd['total_tiket'],
-            $spd['uh_jml_hari'], $spd['uh_per_hari'], $spd['uh_total'],
-            $spd['uh2_jml_hari'], $spd['uh2_per_hari'], $spd['uh2_total'],
-            $spd['uh3_jml_hari'], $spd['uh3_per_hari'], $spd['uh3_total'],
-            $spd['uh_fullboard_per_hari'], $spd['uh_fullboard_jml_hari'], $spd['uh_fullboard_total'],
-            $spd['tarif_maks_hotel'],
-            $spd['hotel1_tarif'], $spd['hotel1_hari'], $spd['hotel1_total'],
-            $spd['hotel2_tarif'], $spd['hotel2_hari'], $spd['hotel2_total'],
-            $spd['hotel3_tarif'], $spd['hotel3_hari'], $spd['hotel3_total'],
-            $spd['hotel4_tarif'], $spd['hotel4_hari'], $spd['hotel4_total'],
-            $spd['hotel5_tarif'], $spd['hotel5_hari'], $spd['hotel5_total'],
-            $spd['hotel6_tarif'], $spd['hotel6_hari'], $spd['hotel6_total'],
-            $spd['total_hotel'],
-            $spd['dpr_tarif_hotel'], $spd['dpr_malam_hotel'], $spd['dpr_koefisien'], $spd['dpr_biaya_penginapan'],
-            $spd['transport_pp'], $spd['transport_ke_bandara'], $spd['transport_bandara_tujuan'],
-            $spd['transport_tujuan_bandara'], $spd['transport_bandara_kedudukan'], $spd['transport_kedudukan_tujuan'],
-            $spd['total_transport'],
-            $spd['covid_berangkat'], $spd['covid_pulang'], $spd['covid_tanpa_bukti'], $spd['total_covid'],
-            $spd['biaya_tol'], $spd['biaya_taksi'], $spd['biaya_bensin'], $spd['biaya_riil_lainnya'], $spd['total_biaya_bukti'],
-            $spd['uang_representatif'], $spd['uang_representatif_hari'], $spd['uang_representatif_total'],
-            $spd['tingkat_perjadin'],
-            $spd['no_rekening'], $spd['bank'], $spd['nama_rekening'],
-            $kegiatan['nomor_st'], $kegiatan['tanggal_st'], $kegiatan['perihal_st'],
-            $spd['tgl_dok_diterima'], $spd['tgl_rincian_spd'], $spd['pengajuan_up_ls'],
-            $spd['tgl_pengajuan'], $spd['tgl_pembayaran'],
-            $spd['persekot'], $spd['grand_total'], $spd['kurang_lebih'],
-            $spd['akun'], $spd['no_routing'], $spd['pic'], $spd['bendahara'], $spd['ppk'], $spd['unit'],
-            $spd['status'], $spd['catatan'],
+            $i + 1, // 0
+            $spd['no_sppd'], // 1
+            $spd['tgl_sppd'], // 2
+            $spd['nama'], // 3
+            $spd['nip'], // 4
+            $spd['kota_asal'], // 5
+            $spd['kota_tujuan'], // 6
+            $spd['tiba_di'], // 7
+            $spd['tgl_mulai'], // 8
+            $spd['tgl_akhir'], // 9
+            $spd['tiket_pp'], // 10
+            $spd['tiket_berangkat'], // 11
+            $spd['tiket_pulang'], // 12
+            $spd['uh_jml_hari'], // 13
+            $spd['uh_per_hari'], // 14
+            $spd['uh_total'], // 15
+            $spd['uh2_jml_hari'], // 16
+            $spd['uh2_per_hari'], // 17
+            $spd['uh2_total'], // 18
+            $spd['uh3_jml_hari'], // 19
+            $spd['uh3_per_hari'], // 20
+            $spd['uh3_total'], // 21
+            $spd['uh_fullboard_per_hari'], // 22
+            $spd['uh_fullboard_jml_hari'], // 23
+            $spd['uh_fullboard_total'], // 24
+            $spd['tarif_maks_hotel'], // 25
+            $spd['hotel1_tarif'], // 26
+            $spd['hotel1_hari'], // 27
+            $spd['hotel2_tarif'], // 28
+            $spd['hotel2_hari'], // 29
+            $spd['hotel3_tarif'], // 30
+            $spd['hotel3_hari'], // 31
+            $spd['hotel4_tarif'], // 32
+            $spd['hotel4_hari'], // 33
+            $spd['hotel5_tarif'], // 34
+            $spd['hotel5_hari'], // 35
+            $spd['hotel6_tarif'], // 36
+            $spd['hotel6_hari'], // 37
+            $spd['dpr_tarif_hotel'], // 38
+            $spd['dpr_malam_hotel'], // 39
+            $spd['dpr_koefisien'], // 40
+            $spd['dpr_biaya_penginapan'], // 41
+            $spd['transport_pp'], // 42
+            $spd['transport_ke_bandara'], // 43
+            $spd['transport_bandara_tujuan'], // 44
+            $spd['transport_tujuan_bandara'], // 45
+            $spd['transport_bandara_kedudukan'], // 46
+            $spd['transport_kedudukan_tujuan'], // 47
+            $spd['covid_berangkat'], // 48
+            $spd['covid_pulang'], // 49
+            $spd['covid_tanpa_bukti'], // 50
+            $spd['biaya_tol'], // 51
+            $spd['biaya_taksi'], // 52
+            $spd['biaya_bensin'], // 53
+            $spd['biaya_riil_lainnya'], // 54
+            $spd['uang_representatif'], // 55
+            $spd['uang_representatif_hari'], // 56
+            $spd['uang_representatif_total'], // 57
+            $spd['golongan'], // 58
+            $spd['pangkat'], // 59
+            $spd['jabatan'], // 60
+            $spd['instansi'], // 61
+            $spd['tingkat_perjadin'], // 62
+            $kegiatan['nomor_st'], // 63
+            $kegiatan['tanggal_st'], // 64
+            $kegiatan['perihal_st'], // 65
+            $spd['no_rekening'], // 66
+            $spd['bank'], // 67
+            $spd['nama_rekening'], // 68
+            $spd['alat_angkut'], // 69
+            $spd['tgl_dok_diterima'], // 70
+            $spd['tgl_rincian_spd'], // 71
+            $spd['pengajuan_up_ls'], // 72
+            $spd['tgl_pengajuan'], // 73
+            $spd['tgl_pembayaran'], // 74
+            $spd['grand_total'], // 75
+            $spd['persekot'], // 76
+            $spd['kurang_lebih'], // 77
+            '', '', '', '', '', '', // 78 - 83
+            $spd['akun'], // 84
+            $spd['no_routing'], // 85
+            $spd['pic'], // 86
+            $spd['bendahara'], // 87
+            $spd['ppk'], // 88
+            $spd['unit'], // 89
+            '', '', '', '', '', // 90 - 94
+            $spd['total_tiket'], // 95
+            $spd['total_hotel'], // 96
+            $spd['total_biaya_bukti'], // 97
+            $spd['uang_representatif_total'], // 98
+            $spd['total_uang_harian'] // 99
         ];
     }
 
