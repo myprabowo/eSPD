@@ -42,9 +42,16 @@ switch ($action) {
             json_response(['success' => false, 'message' => 'File terlalu besar (max 20MB).']);
         }
 
-        // Validate MIME type
-        $finfo = new finfo(FILEINFO_MIME_TYPE);
-        $mimeType = $finfo->file($file['tmp_name']);
+        // Validate MIME type (dengan fallback jika ekstensi fileinfo tidak aktif)
+        if (class_exists('finfo')) {
+            $finfo = new finfo(FILEINFO_MIME_TYPE);
+            $mimeType = $finfo->file($file['tmp_name']);
+        } elseif (function_exists('mime_content_type')) {
+            $mimeType = mime_content_type($file['tmp_name']);
+        } else {
+            // Fallback terakhir, menggunakan mime type dari client (kurang aman tapi mencegah error)
+            $mimeType = $file['type'];
+        }
         if (!in_array($mimeType, allowed_mime_types())) {
             json_response(['success' => false, 'message' => "Tipe file tidak diizinkan: {$mimeType}"]);
         }
