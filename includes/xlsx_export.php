@@ -250,6 +250,20 @@ function generate_export_zip(int $id_kegiatan): string {
         }
     }
 
+    // Add evidence files for Biaya Lain (kegiatan_biaya_lain)
+    $biayaLain = db_query("SELECT * FROM kegiatan_biaya_lain WHERE id_kegiatan = ? AND file_bukti != ''", [$id_kegiatan]);
+    if (!empty($biayaLain)) {
+        $folderBiayaLain = "Biaya_Lain";
+        foreach ($biayaLain as $bl) {
+            $filePath = __DIR__ . '/../uploads/kegiatan_' . $id_kegiatan . '/' . $bl['file_bukti'];
+            if (file_exists($filePath)) {
+                $ext = pathinfo($bl['file_bukti'], PATHINFO_EXTENSION);
+                $safeName = safe_filename($bl['nama_biaya']) . '_' . $bl['id'] . ($ext ? '.' . $ext : '');
+                $zip->addFile($filePath, "Bukti_Perjalanan/{$folderBiayaLain}/{$safeName}");
+            }
+        }
+    }
+
     $zip->close();
 
     // Clean up XLSX temp file
