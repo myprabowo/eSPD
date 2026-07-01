@@ -196,19 +196,13 @@ function generate_xlsx(array $header, array $rows, string $sheetName = 'SPD', ar
     return $tmpFile;
 }
 
+
+
 /**
- * Build a complete export ZIP containing:
- * 1. Rekap_SPD.xlsx — all SPD data in one Excel file
- * 2. Bukti_Perjalanan/{nama}/ — uploaded evidence files per person
+ * Generate the SPD Excel file matching the template format.
+ * Returns the path to the temporary XLSX file.
  */
-function generate_export_zip(int $id_kegiatan): string {
-    $kegiatan = db_query("SELECT * FROM kegiatan WHERE id = ?", [$id_kegiatan]);
-    if (empty($kegiatan)) return '';
-    $kegiatan = $kegiatan[0];
-
-    // Get all SPDs
-    $spds = db_query("SELECT * FROM spd WHERE id_kegiatan = ? ORDER BY nama ASC", [$id_kegiatan]);
-
+function generate_spd_excel_file(array $kegiatan, array $spds): string {
     // Build Excel header/rows
     $exportHeader = [
         ["NO", "No_SPPD", "Tgl_sppd", "Nama", "NIP", "asal", "tujuan", "Tiba Di", "tgl_mulai", "tgl_akhir", "TIKET", "", "", "Uang Harian", "", "", "Uang Harian KOTA KE 2", "", "", "Uang Harian Kota ke 3", "", "", "Uang harian Fullboard", "", "", "TARIF MAKSIMAL HOTEL SBU", "HOTEL dengan KUITANSI (ISI TARIF PER HARI)", "JML HARI", "KUITANSI HOTEL KE 2-ISI TARIF PER HARI (APABILA GANTI-GANTI HOTEL)", "JML HARI (HOTEL KE-2-APABILA GANTI HOTEL)", "KUITANSI HOTEL KE 3-ISI TARIF PER HARI (APABILA GANTI-GANTI HOTEL)", "JML HARI (HOTEL KE-3-APABILA GANTI HOTEL)", "KUITANSI HOTEL KE 4-ISI TARIF PER HARI (APABILA GANTI-GANTI HOTEL)", "JML HARI (HOTEL KE-4-APABILA GANTI HOTEL)", "KUITANSI HOTEL KE 5-ISI TARIF PER HARI (APABILA GANTI-GANTI HOTEL)", "JML HARI (HOTEL KE-5-APABILA GANTI HOTEL)", "KUITANSI HOTEL KE 6-ISI TARIF PER HARI (APABILA GANTI-GANTI HOTEL)", "JML HARI (HOTEL KE-6-APABILA GANTI HOTEL)", "Penginapan DPR", "", "", "", "TRANSPORT DPR", "", "", "", "", "", "TEST COVID", "", "", "Komponen Transportasi Dengan Bukti", "", "", "", "", "", "", "Data SPD", "", "", "", "Tingkat Perjalanan Dinas", "Surat Tugas", "", "", "No. Rek.", "Bank", "Nama", "Alat Angkut yang Digunakan", "Tanggal Dokumen diterima PIC Keu", "Tanggal penyampaian Rincian SPD dan DPR", "Pengajuan Pembayaran/ Penerimaan Dok DS dari Pelaksana Perjadin", "", "Tanggal Pembayaran", "PERSEKOT", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
@@ -314,7 +308,6 @@ function generate_export_zip(int $id_kegiatan): string {
         ];
     }
 
-    // Generate XLSX
     $colTypes = [
         'text' => [1, 4, 63, 66],
         'currency' => [10, 11, 12, 14, 15, 17, 18, 20, 21, 22, 24, 25, 26, 28, 30, 32, 34, 36, 38, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 57, 75, 76, 77, 95, 96, 97, 98, 99]
@@ -332,7 +325,24 @@ function generate_export_zip(int $id_kegiatan): string {
         $merges[] = "{$col}1:{$col}2";
     }
 
-    $xlsxPath = generate_xlsx($exportHeader, $exportRows, 'Rekap SPD', $colTypes, $merges);
+    return generate_xlsx($exportHeader, $exportRows, 'Rekap SPD', $colTypes, $merges);
+}
+
+/**
+ * Build a complete export ZIP containing:
+ * 1. Rekap_SPD.xlsx — all SPD data in one Excel file
+ * 2. Bukti_Perjalanan/{nama}/ — uploaded evidence files per person
+ */
+function generate_export_zip(int $id_kegiatan): string {
+    $kegiatan = db_query("SELECT * FROM kegiatan WHERE id = ?", [$id_kegiatan]);
+    if (empty($kegiatan)) return '';
+    $kegiatan = $kegiatan[0];
+
+    // Get all SPDs
+    $spds = db_query("SELECT * FROM spd WHERE id_kegiatan = ? ORDER BY nama ASC", [$id_kegiatan]);
+
+    // Generate XLSX
+    $xlsxPath = generate_spd_excel_file($kegiatan, $spds);
 
     // Build ZIP
     $zipPath = tempnam(sys_get_temp_dir(), 'spd_zip_');

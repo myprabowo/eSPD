@@ -29,35 +29,7 @@ switch ($action) {
 
         $spds = db_query("SELECT * FROM spd WHERE id_kegiatan = ? ORDER BY nama ASC", [$id_kegiatan]);
 
-        $header = [
-            'No', 'No SPPD', 'Tgl SPPD', 'Nama', 'NIP', 'Golongan', 'Pangkat', 'Jabatan', 'Instansi',
-            'Kota Asal', 'Kota Tujuan', 'Tgl Mulai', 'Tgl Akhir',
-            'Tiket Berangkat', 'Tiket Pulang', 'Total Tiket',
-            'UH Hari', 'UH/Hari', 'UH Total',
-            'Hotel Tarif', 'Hotel Hari', 'Hotel Total',
-            'Transport Total', 'Uang Representatif Total',
-            'Grand Total', 'Persekot', 'Kurang/Lebih',
-            'No Rekening', 'Bank', 'Status',
-        ];
-
-        $rows = [];
-        foreach ($spds as $i => $spd) {
-            $spd = compute_spd_totals($spd);
-            $rows[] = [
-                $i + 1,
-                $spd['no_sppd'], $spd['tgl_sppd'], $spd['nama'], $spd['nip'],
-                $spd['golongan'], $spd['pangkat'], $spd['jabatan'], $spd['instansi'],
-                $spd['kota_asal'], $spd['kota_tujuan'], $spd['tgl_mulai'], $spd['tgl_akhir'],
-                $spd['tiket_berangkat'], $spd['tiket_pulang'], $spd['total_tiket'],
-                $spd['uh_jml_hari'], $spd['uh_per_hari'], $spd['total_uang_harian'],
-                $spd['hotel1_tarif'], $spd['hotel1_hari'], $spd['total_hotel'],
-                $spd['total_transport'], $spd['uang_representatif_total'],
-                $spd['grand_total'], $spd['persekot'], $spd['kurang_lebih'],
-                $spd['no_rekening'], $spd['bank'], $spd['status'],
-            ];
-        }
-
-        $xlsxPath = generate_xlsx($header, $rows, 'Rekap SPD');
+        $xlsxPath = generate_spd_excel_file($kegiatan, $spds);
         if (!$xlsxPath || !file_exists($xlsxPath)) {
             http_response_code(500); exit('Gagal membuat file Excel');
         }
