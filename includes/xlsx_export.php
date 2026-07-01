@@ -205,15 +205,15 @@ function generate_xlsx(array $header, array $rows, string $sheetName = 'SPD', ar
 function generate_spd_excel_file(array $kegiatan, array $spds): string {
     // Build Excel header/rows
     $exportHeader = [
-        ["NO", "No_SPPD", "Tgl_sppd", "Nama", "NIP", "asal", "tujuan", "Tiba Di", "tgl_mulai", "tgl_akhir", "TIKET", "", "", "Uang Harian", "", "", "Uang Harian KOTA KE 2", "", "", "Uang Harian Kota ke 3", "", "", "Uang harian Fullboard", "", "", "TARIF MAKSIMAL HOTEL SBU", "HOTEL dengan KUITANSI (ISI TARIF PER HARI)", "JML HARI", "KUITANSI HOTEL KE 2-ISI TARIF PER HARI (APABILA GANTI-GANTI HOTEL)", "JML HARI (HOTEL KE-2-APABILA GANTI HOTEL)", "KUITANSI HOTEL KE 3-ISI TARIF PER HARI (APABILA GANTI-GANTI HOTEL)", "JML HARI (HOTEL KE-3-APABILA GANTI HOTEL)", "KUITANSI HOTEL KE 4-ISI TARIF PER HARI (APABILA GANTI-GANTI HOTEL)", "JML HARI (HOTEL KE-4-APABILA GANTI HOTEL)", "KUITANSI HOTEL KE 5-ISI TARIF PER HARI (APABILA GANTI-GANTI HOTEL)", "JML HARI (HOTEL KE-5-APABILA GANTI HOTEL)", "KUITANSI HOTEL KE 6-ISI TARIF PER HARI (APABILA GANTI-GANTI HOTEL)", "JML HARI (HOTEL KE-6-APABILA GANTI HOTEL)", "Penginapan DPR", "", "", "", "TRANSPORT DPR", "", "", "", "", "", "TEST COVID", "", "", "Komponen Transportasi Dengan Bukti", "", "", "", "", "", "", "Data SPD", "", "", "", "Tingkat Perjalanan Dinas", "Surat Tugas", "", "", "No. Rek.", "Bank", "Nama", "Alat Angkut yang Digunakan", "Tanggal Dokumen diterima PIC Keu", "Tanggal penyampaian Rincian SPD dan DPR", "Pengajuan Pembayaran/ Penerimaan Dok DS dari Pelaksana Perjadin", "", "Tanggal Pembayaran", "PERSEKOT", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
-        ["", "", "", "", "", "", "", "", "", "", "Tiket PP", "Berangkat", "Pulang", "jml_hari", "uang harian (per satu hr)", "harian total", "jml_hari", "uang harian (per satu hr)", "harian total", "jml_hari", "uang harian (per satu hr)", "harian total", "Fullboard (per satu hari)", "Jumlah Hari", "Fullboard total", "", "", "", "", "", "", "", "", "", "", "", "", "", "TARIF HOTEL SESUAI GOLONGAN", "Malam hotel", "0.3", "Penggantian Biaya Penginapan", "Penggantian biaya transport dari tempat kedudukan ke tempat tujuan (PP)", "Penggantian biaya transport dari tempat kedudukan ke bandara", "Penggantian biaya transport dari bandara ke tempat tujuan", "Penggantian biaya transport dari tempat tujuan ke bandara", "Penggantian biaya transport dari bandara ke tempat kedudukan", "Penggantian biaya transport dari tempat kedudukan ke tempat tujuan/dari tempat tujuan ke tempat kedudukan", "Biaya Test Covid 19 berangkat\nDENGAN BUKTI", "pulang", "Biaya Test Covid 19\nISI DISINI JIKA TANPA BUKTI", "Biaya Tol", "Taksi", "Bensin", "Penggantian Biaya Riil Lainnya", "Uang Representatif", "Jumlah Hari", "Jumlah Uang Representatif", "Golongan", "Pangkat", "Jabatan", "Instansi", "", "Nomor", "Tanggal", "Perihal", "", "", "Rekening", "", "", "", "UP/LS", "Tanggal", "", "JUMLAH", "Persekot", "Kurang/Lebih", "", "", "", "", "", "", "AKUN", "No Routing", "PIC", "Bendahara", "PPK", "UNIT", "", "", "", "", "", "Total Tiket", "Total Hotel", "Total Taksi, Tol dan BBM", "Total Uang Representatif", "Total UH"],
+        ["No", "No SPPD", "Tgl SPPD", "Nama", "NIP", "Asal", "Tujuan", "Tiba Di", "Tgl Mulai", "Tgl Akhir", "Tiket", "", "", "Uang Harian", "", "", "Uang Harian Kota Ke-2", "", "", "Uang Harian Kota Ke-3", "", "", "Uang Harian Fullboard", "", "", "Tarif Maksimal Hotel SBU", "Hotel Dengan Kuitansi (Isi Tarif Per Hari)", "Jumlah Hari", "Kuitansi Hotel Ke-2 (Isi Tarif Per Hari)", "Jml Hari (Hotel Ke-2)", "Kuitansi Hotel Ke-3 (Isi Tarif Per Hari)", "Jml Hari (Hotel Ke-3)", "Kuitansi Hotel Ke-4 (Isi Tarif Per Hari)", "Jml Hari (Hotel Ke-4)", "Kuitansi Hotel Ke-5 (Isi Tarif Per Hari)", "Jml Hari (Hotel Ke-5)", "Kuitansi Hotel Ke-6 (Isi Tarif Per Hari)", "Jml Hari (Hotel Ke-6)", "Penginapan DPR", "", "", "", "Transport DPR", "", "", "", "", "", "Test Covid", "", "", "Komponen Transportasi Dengan Bukti", "", "", "", "", "", "", "Data SPD", "", "", "", "Tingkat Perjalanan Dinas", "Surat Tugas", "", "", "No. Rekening", "Bank", "Nama", "Alat Angkut Yang Digunakan", "Tanggal Dokumen Diterima PIC Keuangan", "Tanggal Penyampaian Rincian SPD Dan DPR", "Pengajuan Pembayaran / Penerimaan Dokumen DS Dari Pelaksana Perjadin", "", "Tanggal Pembayaran", "Persekot", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "Tiket PP", "Berangkat", "Pulang", "Jml Hari", "Uang Harian (Per 1 Hari)", "Harian Total", "Jml Hari", "Uang Harian (Per 1 Hari)", "Harian Total", "Jml Hari", "Uang Harian (Per 1 Hari)", "Harian Total", "Fullboard (Per 1 Hari)", "Jumlah Hari", "Fullboard Total", "", "", "", "", "", "", "", "", "", "", "", "", "", "Tarif Hotel Sesuai Golongan", "Malam Hotel", "0.3", "Penggantian Biaya Penginapan", "Kedudukan ke Tempat Tujuan (PP)", "Kedudukan ke Bandara", "Bandara ke Tujuan", "Tujuan ke Bandara", "Bandara ke Kedudukan", "Kedudukan ke Tujuan / Tujuan ke Kedudukan", "Berangkat (Dengan Bukti)", "Pulang", "Tanpa Bukti", "Biaya Tol", "Taksi", "Bensin", "Penggantian Biaya Riil Lainnya", "Uang Representatif", "Jumlah Hari", "Jumlah Uang Representatif", "Golongan", "Pangkat", "Jabatan", "Instansi", "", "Nomor", "Tanggal", "Perihal", "", "", "Rekening", "", "", "", "UP/LS", "Tanggal", "", "Jumlah", "Persekot", "Kurang/Lebih", "", "", "", "", "", "", "Akun", "No Routing", "PIC", "Bendahara", "PPK", "Unit", "", "", "", "", "", "Total Tiket", "Total Hotel", "Total Taksi, Tol Dan BBM", "Total Uang Representatif", "Total UH"],
         ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41.0", "42", "43", "44", "45", "46", "47", "48", "49", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59", "60", "61", "62", "63", "64", "65", "66", "", "68", "69", "70", "71", "72", "73", "74", "75", "76", "77", "78", "79.0", "80.0", "81.0", "82.0", "83.0", "84.0", "85", "86", "87", "88", "89", "", "", "", "", "", "", "", "", "", "", ""]
     ];
 
     $exportRows = [];
     foreach ($spds as $i => $spd) {
         $spd = compute_spd_totals($spd);
-        $exportRows[] = [
+        $row = [
             $i + 1, // 0
             $spd['no_sppd'], // 1
             $spd['tgl_sppd'], // 2
@@ -290,8 +290,8 @@ function generate_spd_excel_file(array $kegiatan, array $spds): string {
             $spd['tgl_pengajuan'], // 73
             $spd['tgl_pembayaran'], // 74
             $spd['grand_total'], // 75
-            $spd['persekot'], // 76
-            $spd['kurang_lebih'], // 77
+            '', // 76: Persekot (dikosongkan sesuai permintaan)
+            '', // 77: Kurang/Lebih (dikosongkan sesuai permintaan)
             '', '', '', '', '', '', // 78 - 83
             $spd['akun'], // 84
             $spd['no_routing'], // 85
@@ -306,6 +306,14 @@ function generate_spd_excel_file(array $kegiatan, array $spds): string {
             $spd['uang_representatif_total'], // 98
             $spd['total_uang_harian'] // 99
         ];
+        
+        // Convert strict 0 to empty string for numeric columns
+        foreach ($row as $ci => &$val) {
+            if ($ci !== 0 && is_numeric($val) && (float)$val === 0.0) {
+                $val = '';
+            }
+        }
+        $exportRows[] = $row;
     }
 
     $colTypes = [
