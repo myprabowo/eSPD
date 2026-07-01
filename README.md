@@ -23,6 +23,24 @@ eSPD adalah aplikasi berbasis web yang dirancang untuk mengelola dan merekapitul
    - Ekspor rincian SPD ke dalam format Excel (.xlsx).
    - Ekspor file bukti fisik ke dalam format ZIP secara otomatis yang diorganisasikan per folder peserta.
 
+## Alur Kerja
+
+Berikut adalah alur kerja (workflow) utama dalam penggunaan sistem eSPD:
+
+```mermaid
+graph TD
+    A([User: Membuat Kegiatan Baru]) --> B[Input Data SPD Peserta & Biaya Lain]
+    B --> C[Upload File Bukti Fisik<br/>Tiket, Hotel, Transport, dll.]
+    C --> D[Posting Kegiatan<br/>Status SPD berubah menjadi Submitted]
+    
+    D --> E{Review oleh Admin Super}
+    E -- Reject --> F[Status kembali menjadi Draft<br/>User memperbaiki inputan & bukti]
+    F --> C
+    E -- Verifikasi/Edit --> G[Admin Super menyesuaikan nominal & status]
+    
+    G --> H([Ekspor Data<br/>Rekap Excel & Bundle ZIP Bukti])
+```
+
 ## Persyaratan Sistem
 
 - PHP versi 8.0 atau lebih baru.
