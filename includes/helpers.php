@@ -75,13 +75,25 @@ function compute_spd_totals(array $row): array {
     
     $row['total_uang_harian'] = $row['uh_total'] + $row['uh2_total'] + $row['uh3_total'] + $row['uh_fullboard_total'];
 
-    // Hotel totals
-    $row['hotel1_total'] = ($row['hotel1_tarif'] ?? 0) * ($row['hotel1_hari'] ?? 0);
-    $row['hotel2_total'] = ($row['hotel2_tarif'] ?? 0) * ($row['hotel2_hari'] ?? 0);
-    $row['hotel3_total'] = ($row['hotel3_tarif'] ?? 0) * ($row['hotel3_hari'] ?? 0);
-    $row['hotel4_total'] = ($row['hotel4_tarif'] ?? 0) * ($row['hotel4_hari'] ?? 0);
-    $row['hotel5_total'] = ($row['hotel5_tarif'] ?? 0) * ($row['hotel5_hari'] ?? 0);
-    $row['hotel6_total'] = ($row['hotel6_tarif'] ?? 0) * ($row['hotel6_hari'] ?? 0);
+    $tarif_maks = (float)($row['tarif_maks_hotel'] ?? 0);
+    $row['is_hotel_exceed'] = false;
+
+    $compute_hotel = function($tarif, $hari) use ($tarif_maks, &$row) {
+        $tarif = (float)($tarif ?? 0);
+        $hari = (float)($hari ?? 0);
+        if ($tarif_maks > 0 && $tarif > $tarif_maks) {
+            $row['is_hotel_exceed'] = true;
+            return $tarif_maks * $hari;
+        }
+        return $tarif * $hari;
+    };
+
+    $row['hotel1_total'] = $compute_hotel($row['hotel1_tarif'] ?? 0, $row['hotel1_hari'] ?? 0);
+    $row['hotel2_total'] = $compute_hotel($row['hotel2_tarif'] ?? 0, $row['hotel2_hari'] ?? 0);
+    $row['hotel3_total'] = $compute_hotel($row['hotel3_tarif'] ?? 0, $row['hotel3_hari'] ?? 0);
+    $row['hotel4_total'] = $compute_hotel($row['hotel4_tarif'] ?? 0, $row['hotel4_hari'] ?? 0);
+    $row['hotel5_total'] = $compute_hotel($row['hotel5_tarif'] ?? 0, $row['hotel5_hari'] ?? 0);
+    $row['hotel6_total'] = $compute_hotel($row['hotel6_tarif'] ?? 0, $row['hotel6_hari'] ?? 0);
     
     $row['total_hotel'] = $row['hotel1_total'] + $row['hotel2_total'] + $row['hotel3_total'] 
                         + $row['hotel4_total'] + $row['hotel5_total'] + $row['hotel6_total'];

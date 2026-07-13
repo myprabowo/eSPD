@@ -69,6 +69,7 @@ $kegiatan = $kegiatan[0];
                     <th>Hotel/Mlm</th>
                     <th>Hotel Mlm</th>
                     <th class="currency">Total Hotel</th>
+                    <th class="currency">Total Transport</th>
                     <th class="currency">Total Tiket</th>
                     <th class="currency">Grand Total</th>
                     <th>Status</th>
@@ -332,7 +333,8 @@ async function loadSpdList() {
             <td class="currency" data-computed="total_uang_harian">${formatRupiah(s.total_uang_harian)}</td>
             <td class="editable currency" data-id="${s.id}" data-field="hotel1_tarif" data-type="number" data-value="${s.hotel1_tarif || 0}">${formatNumber(s.hotel1_tarif)}</td>
             <td class="editable" data-id="${s.id}" data-field="hotel1_hari" data-type="number" data-value="${s.hotel1_hari || 0}">${s.hotel1_hari || '-'}</td>
-            <td class="currency" data-computed="total_hotel">${formatRupiah(s.total_hotel)}</td>
+            <td class="currency" data-computed="total_hotel" style="${s.is_hotel_exceed ? 'color: var(--danger-600); font-weight: bold;' : ''}">${formatRupiah(s.total_hotel)}</td>
+            <td class="currency" data-computed="total_transport">${formatRupiah(s.total_transport)}</td>
             <td class="currency" data-computed="total_tiket">${formatRupiah(s.total_tiket)}</td>
             <td class="currency total-row" data-computed="grand_total">${formatRupiah(s.grand_total)}</td>
             <td>
