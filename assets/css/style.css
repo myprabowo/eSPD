@@ -672,9 +672,120 @@ td.editable select {
 }
 
 .badge-draft     { background: rgba(100, 116, 139, 0.15); color: var(--text-muted); }
-.badge-submitted { background: rgba(59, 130, 246, 0.15);  color: var(--info-500); }
+.badge-submitted { background: rgba(59, 130, 246, 0.15);  color: var(--primary-600); }
 .badge-verified  { background: rgba(245, 158, 11, 0.15);  color: var(--warning-500); }
 .badge-paid      { background: rgba(34, 197, 94, 0.15);   color: var(--success-500); }
+
+.badge-submitted-pulse {
+    background: rgba(37, 99, 235, 0.15) !important;
+    color: var(--primary-700) !important;
+    border: 1px solid rgba(37, 99, 235, 0.35);
+    font-weight: 700;
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.2);
+}
+
+.pulse-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--primary-600);
+    display: inline-block;
+    animation: pulseDot 1.5s infinite;
+}
+
+@keyframes pulseDot {
+    0%   { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.7); }
+    70%  { opacity: 0.8; transform: scale(1.1); box-shadow: 0 0 0 5px rgba(37, 99, 235, 0); }
+    100% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
+}
+
+/* Alert Banner PIC Keuangan */
+.alert-banner-keuangan {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.5rem;
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.08) 0%, rgba(99, 102, 241, 0.06) 100%);
+    border: 1px solid rgba(37, 99, 235, 0.25);
+    border-left: 4px solid var(--primary-600);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    animation: fadeInBanner 0.35s ease-out;
+}
+
+.alert-banner-keuangan .alert-banner-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: var(--radius-md);
+    background: linear-gradient(135deg, var(--primary-500), var(--primary-700));
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
+}
+
+.alert-banner-keuangan .alert-banner-content h4 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 0.2rem 0;
+}
+
+.alert-banner-keuangan .alert-banner-content p {
+    font-size: 0.84rem;
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: 1.4;
+}
+
+/* Stat card attention style */
+.stat-card.stat-card-attention {
+    border-color: rgba(37, 99, 235, 0.4);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(239, 246, 255, 0.85));
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.15);
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card.stat-card-attention::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary-500), var(--primary-700));
+}
+
+.stat-badge-sub {
+    display: inline-block;
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: var(--primary-600);
+    background: rgba(37, 99, 235, 0.1);
+    padding: 0.15rem 0.45rem;
+    border-radius: 999px;
+    margin-top: 0.25rem;
+}
+
+/* Highlighted submitted rows */
+tr.tr-submitted-highlight {
+    background: rgba(59, 130, 246, 0.05);
+    border-left: 3.5px solid var(--primary-600);
+}
+
+tr.tr-submitted-highlight:hover {
+    background: rgba(59, 130, 246, 0.12) !important;
+}
+
+@keyframes fadeInBanner {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
 
 /* --- Accordion / Sections --- */
 .section-group {
