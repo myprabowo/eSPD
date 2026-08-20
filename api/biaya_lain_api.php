@@ -107,7 +107,7 @@ switch ($action) {
         if (empty($row)) json_response(['success' => false, 'message' => 'Data tidak ditemukan.']);
         
         // Check ownership
-        if (current_role() !== 'Admin Super') {
+        if (!is_pic_keuangan()) {
             $owner = db_query("SELECT id FROM kegiatan WHERE id = ? AND created_by = ?", [$row[0]['id_kegiatan'], current_username()]);
             if (empty($owner)) json_response(['success' => false, 'message' => 'Akses ditolak.']);
         }

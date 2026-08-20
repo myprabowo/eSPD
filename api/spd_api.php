@@ -13,7 +13,7 @@ $b      = json_body();
 $action = $b['action'] ?? $_POST['action'] ?? $_GET['action'] ?? '';
 
 function check_spd_access(int $id, bool $requireDraft = false): bool {
-    if (current_role() === 'Admin Super') return true;
+    if (is_pic_keuangan()) return true;
     $row = db_query("SELECT id, status FROM spd WHERE id = ? AND created_by = ?", [$id, current_username()]);
     if (empty($row)) return false;
     if ($requireDraft && $row[0]['status'] !== 'draft') return false;
@@ -27,7 +27,7 @@ switch ($action) {
         if (!$id_kegiatan) json_response(['success' => false, 'message' => 'ID kegiatan diperlukan.']);
         $params = [$id_kegiatan];
         $userFilter = '';
-        if (current_role() !== 'Admin Super') {
+        if (!is_pic_keuangan()) {
             $userFilter = ' AND s.created_by = ?';
             $params[] = current_username();
         }
@@ -158,7 +158,7 @@ switch ($action) {
 
         $params = [$value, $id];
         $userFilter = '';
-        if (current_role() !== 'Admin Super') {
+        if (!is_pic_keuangan()) {
             $userFilter = ' AND created_by = ?';
             $params[] = current_username();
         }
@@ -171,7 +171,7 @@ switch ($action) {
             $pangkat = get_pangkat_from_golongan((string)$value);
             if ($pangkat !== '') {
                 $pParams = [$pangkat, $id];
-                if (current_role() !== 'Admin Super') $pParams[] = current_username();
+                if (!is_pic_keuangan()) $pParams[] = current_username();
                 db_execute("UPDATE spd SET pangkat = ? WHERE id = ?$userFilter", $pParams);
             }
         }
@@ -202,8 +202,8 @@ switch ($action) {
         if (!$id || $alasan === '') {
             json_response(['success' => false, 'message' => 'ID dan alasan diperlukan.']);
         }
-        if (current_role() !== 'Admin Super') {
-            json_response(['success' => false, 'message' => 'Hanya Admin Super yang bisa melakukan reject.']);
+        if (!is_pic_keuangan()) {
+            json_response(['success' => false, 'message' => 'Hanya PIC Keuangan yang bisa melakukan reject.']);
         }
         
         $row = db_query("SELECT catatan FROM spd WHERE id = ?", [$id]);

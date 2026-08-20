@@ -33,10 +33,10 @@ graph TD
     B --> C[Upload File Bukti Fisik<br/>Tiket, Hotel, Transport, dll.]
     C --> D[Posting Kegiatan<br/>Status SPD berubah menjadi Submitted]
     
-    D --> E{Review oleh Admin Super}
+    D --> E{Review oleh PIC Keuangan}
     E -- Reject --> F[Status kembali menjadi Draft<br/>User memperbaiki inputan & bukti]
     F --> C
-    E -- Verifikasi/Edit --> G[Admin Super menyesuaikan nominal & status]
+    E -- Verifikasi/Edit --> G[PIC Keuangan menyesuaikan nominal & status]
     
     G --> H([Ekspor Data<br/>Rekap Excel & Bundle ZIP Bukti])
 ```
@@ -95,7 +95,7 @@ graph TD
 
 Sistem eSPD menggunakan beberapa tabel utama dalam database relasional:
 
-- **`users`**: Menyimpan data autentikasi pengguna dan role (Admin Super, user biasa).
+- **`users`**: Menyimpan data autentikasi pengguna dan role (PIC Keuangan, user biasa).
 - **`kegiatan`**: Menyimpan data utama acara/kegiatan dinas, nomor surat tugas (ST), dan pagu persekot (uang muka).
 - **`spd`**: Tabel transaksi utama yang menyimpan rincian perjalanan dinas per orang (terhubung ke tabel `kegiatan`). Berisi informasi lengkap dari identitas, biaya tiket, hotel, transportasi, hingga perhitungan total biaya dan status (Draft, Submitted, dll).
 - **`spd_files`**: Menyimpan metadata file bukti fisik perjalanan (tiket, kuitansi hotel, dll.) yang diunggah untuk masing-masing peserta.

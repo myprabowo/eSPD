@@ -23,7 +23,7 @@ switch ($action) {
         $kegiatan = $kegiatan[0];
 
         // Check ownership
-        if (current_role() !== 'Admin Super' && ($kegiatan['created_by'] ?? '') !== current_username()) {
+        if (!is_pic_keuangan() && ($kegiatan['created_by'] ?? '') !== current_username()) {
             http_response_code(403); exit('Akses ditolak');
         }
 
@@ -51,7 +51,7 @@ switch ($action) {
         $kegiatan = $kegiatan[0];
 
         // Check ownership
-        if (current_role() !== 'Admin Super' && ($kegiatan['created_by'] ?? '') !== current_username()) {
+        if (!is_pic_keuangan() && ($kegiatan['created_by'] ?? '') !== current_username()) {
             http_response_code(403); exit('Akses ditolak');
         }
 

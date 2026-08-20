@@ -87,3 +87,8 @@ function current_username(): string {
 function current_role(): string {
     return $_SESSION['role'] ?? 'Guest';
 }
+
+function is_pic_keuangan(): bool {
+    return in_array(current_role(), ['PIC Keuangan', 'Admin Super'], true);
+}
+

@@ -17,7 +17,7 @@ switch ($action) {
     case 'list':
         $params = [];
         $userFilter = '';
-        if (current_role() !== 'Admin Super') {
+        if (!is_pic_keuangan()) {
             $userFilter = ' WHERE k.created_by = ?';
             $params[] = current_username();
         }
@@ -37,7 +37,7 @@ switch ($action) {
         if (!$id) json_response(['success' => false, 'message' => 'ID diperlukan.']);
         $params = [$id];
         $userFilter = '';
-        if (current_role() !== 'Admin Super') {
+        if (!is_pic_keuangan()) {
             $userFilter = ' AND created_by = ?';
             $params[] = current_username();
         }
@@ -80,7 +80,7 @@ switch ($action) {
                 $id,
             ];
         $userFilter = '';
-        if (current_role() !== 'Admin Super') {
+        if (!is_pic_keuangan()) {
             $userFilter = ' AND created_by = ?';
             $params[] = current_username();
         }
@@ -97,7 +97,7 @@ switch ($action) {
         if (!$id) json_response(['success' => false, 'message' => 'ID diperlukan.']);
         $params = [$id];
         $userFilter = '';
-        if (current_role() !== 'Admin Super') {
+        if (!is_pic_keuangan()) {
             $userFilter = ' AND created_by = ?';
             $params[] = current_username();
         }
@@ -121,7 +121,7 @@ switch ($action) {
         if (!$id) json_response(['success' => false, 'message' => 'ID diperlukan.']);
         $params = [$id];
         $userFilter = '';
-        if (current_role() !== 'Admin Super') {
+        if (!is_pic_keuangan()) {
             $userFilter = ' AND created_by = ?';
             $params[] = current_username();
         }

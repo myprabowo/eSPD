@@ -248,6 +248,7 @@ $kegiatan = $kegiatan[0];
 
 <script>
 const CURRENT_ROLE = '<?= current_role() ?>';
+const IS_PIC_KEUANGAN = <?= is_pic_keuangan() ? 'true' : 'false' ?>;
 const ID_KEGIATAN = <?= $id_kegiatan ?>;
 const PERSEKOT_KEGIATAN = <?= (float)($kegiatan['persekot'] ?? 0) ?>;
 let allPengajar = [];
@@ -344,7 +345,7 @@ async function loadSpdList() {
                 <div style="display:flex; gap:0.25rem; justify-content:center;">
                     <a href="?page=spd_detail&id=${s.id}" class="btn btn-sm btn-secondary" title="Detail">📋</a>
                     <button class="btn btn-sm btn-danger" onclick="deleteSpd(${s.id})" title="Hapus">✕</button>
-                    ${(CURRENT_ROLE === 'Admin Super' && s.status !== 'draft') ? `<button class="btn btn-sm btn-warning" onclick="rejectSpd(${s.id})" title="Reject">↩️</button>` : ''}
+                    ${(IS_PIC_KEUANGAN && s.status !== 'draft') ? `<button class="btn btn-sm btn-warning" onclick="rejectSpd(${s.id})" title="Reject">↩️</button>` : ''}
                 </div>
             </td>
         </tr>

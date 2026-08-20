@@ -104,7 +104,7 @@ switch ($action) {
         $f = $file[0];
 
         // Check ownership via SPD -> Kegiatan
-        if (current_role() !== 'Admin Super') {
+        if (!is_pic_keuangan()) {
             $owner = db_query(
                 "SELECT s.id FROM spd s JOIN kegiatan k ON s.id_kegiatan = k.id WHERE s.id = ? AND k.created_by = ?",
                 [$f['id_spd'], current_username()]

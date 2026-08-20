@@ -1,9 +1,11 @@
 <?php
 // Dashboard — Overview statistics
-$uKeg = current_role() === 'Admin Super' ? "" : " WHERE created_by = '" . current_username() . "'";
-$uSpd = current_role() === 'Admin Super' ? "" : " WHERE created_by = '" . current_username() . "'";
-$uSpdAnd = current_role() === 'Admin Super' ? "" : " AND created_by = '" . current_username() . "'";
-$uSpdAndS = current_role() === 'Admin Super' ? "" : " WHERE s.created_by = '" . current_username() . "'";
+$isPic = is_pic_keuangan();
+$uKeg = $isPic ? "" : " WHERE created_by = '" . current_username() . "'";
+$uSpd = $isPic ? "" : " WHERE created_by = '" . current_username() . "'";
+$uSpdAnd = $isPic ? "" : " AND created_by = '" . current_username() . "'";
+$uSpdAndS = $isPic ? "" : " WHERE s.created_by = '" . current_username() . "'";
+
 
 $kegiatanCount = db_query("SELECT COUNT(*) as cnt FROM kegiatan $uKeg")[0]['cnt'] ?? 0;
 $spdCount      = db_query("SELECT COUNT(*) as cnt FROM spd $uSpd")[0]['cnt'] ?? 0;
