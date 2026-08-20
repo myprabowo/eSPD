@@ -345,7 +345,7 @@ async function loadSpdList() {
                 <div style="display:flex; gap:0.25rem; justify-content:center;">
                     <a href="?page=spd_detail&id=${s.id}" class="btn btn-sm btn-secondary" title="Detail">📋</a>
                     <button class="btn btn-sm btn-danger" onclick="deleteSpd(${s.id})" title="Hapus">✕</button>
-                    ${(IS_PIC_KEUANGAN && s.status !== 'draft') ? `<button class="btn btn-sm btn-warning" onclick="rejectSpd(${s.id})" title="Reject">↩️</button>` : ''}
+                    ${(IS_PIC_KEUANGAN && s.status !== 'draft') ? `<button class="btn btn-sm btn-danger" onclick="rejectSpd(${s.id})" title="Tolak SPD & Kembalikan ke Draft" style="font-size:0.75rem; padding:0.25rem 0.5rem; display:inline-flex; align-items:center; gap:0.2rem;">↩ Tolak</button>` : ''}
                 </div>
             </td>
         </tr>

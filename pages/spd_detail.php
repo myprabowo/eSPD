@@ -38,8 +38,36 @@ $categories = file_categories();
     </div>
     <div class="header-actions">
         <a href="?page=spd_list&id_kegiatan=<?= $spd['id_kegiatan'] ?>" class="btn btn-secondary">← Kembali</a>
+        <?php if (is_pic_keuangan() && $spd['status'] !== 'draft'): ?>
+            <button class="btn btn-danger" onclick="rejectSpdDetail(<?= $spd['id'] ?>)">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                Tolak SPD
+            </button>
+            <?php if ($spd['status'] === 'submitted'): ?>
+                <button class="btn btn-success" onclick="updateSpdStatusDetail(<?= $spd['id'] ?>, 'verified')">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                    Verifikasi SPD
+                </button>
+            <?php elseif ($spd['status'] === 'verified'): ?>
+                <button class="btn btn-success" onclick="updateSpdStatusDetail(<?= $spd['id'] ?>, 'paid')">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                    Tandai Terbayar
+                </button>
+            <?php endif; ?>
+        <?php endif; ?>
     </div>
 </div>
+
+<?php if (!empty($spd['catatan'])): ?>
+<div style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.25); border-left: 4px solid var(--danger-500); padding: 0.85rem 1.25rem; border-radius: var(--radius-md); margin-bottom: 1.25rem;">
+    <div style="display:flex; align-items:center; gap:0.5rem; color: var(--danger-500); font-weight: 700; font-size: 0.9rem; margin-bottom: 0.25rem;">
+        <span>⚠️ Catatan Penolakan / Revisi:</span>
+    </div>
+    <div style="font-size: 0.85rem; color: var(--text-primary); white-space: pre-line;">
+        <?= h($spd['catatan']) ?>
+    </div>
+</div>
+<?php endif; ?>
 
 <div style="display:grid; grid-template-columns: 1fr 340px; gap:1rem; align-items:start;">
 
@@ -588,5 +616,30 @@ async function deleteFileItem(fileId) {
         const el = document.getElementById('file-' + fileId);
         if (el) el.remove();
     });
+}
+
+async function rejectSpdDetail(id) {
+    const alasan = prompt("Masukkan alasan penolakan (catatan revisi untuk pembuat SPD):");
+    if (!alasan) return;
+    const result = await postAPI('api/spd_api.php', { action: 'reject', id, alasan });
+    if (result && result.success) {
+        toast(result.message, 'success');
+        setTimeout(() => location.reload(), 700);
+    } else {
+        toast(result?.message || 'Gagal menolak SPD.', 'error');
+    }
+}
+
+async function updateSpdStatusDetail(id, status) {
+    const statusLabels = { 'verified': 'Verifikasi', 'paid': 'Terbayar (Paid)' };
+    const label = statusLabels[status] || status.toUpperCase();
+    if (!confirm(`Ubah status SPD menjadi "${label}"?`)) return;
+    const result = await postAPI('api/spd_api.php', { action: 'update_status', id, status });
+    if (result && result.success) {
+        toast(result.message, 'success');
+        setTimeout(() => location.reload(), 700);
+    } else {
+        toast(result?.message || 'Gagal mengubah status.', 'error');
+    }
 }
 </script>
